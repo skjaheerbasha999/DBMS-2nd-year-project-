@@ -4,7 +4,7 @@ const path = require('path');
 const { initDb } = require('./db');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+let PORT = process.env.PORT || 5000;
 
 // Initialize Database Tables and Seeds
 initDb();
@@ -62,10 +62,23 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`\n==================================================`);
-  console.log(`🚀 TrackFlow Backend Server is live on port ${PORT}`);
-  console.log(`👉 API Base URL: http://localhost:${PORT}/api`);
-  console.log(`👉 Health Check: http://localhost:${PORT}/api/health`);
-  console.log(`==================================================\n`);
-});
+function startServer(portToUse) {
+  const server = app.listen(portToUse, () => {
+    console.log(`\n==================================================`);
+    console.log(`🚀 TrackFlow Backend Server is live on port ${portToUse}`);
+    console.log(`👉 API Base URL: http://localhost:${portToUse}/api`);
+    console.log(`👉 Health Check: http://localhost:${portToUse}/api/health`);
+    console.log(`==================================================\n`);
+  });
+
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.warn(`[Server Warning] Port ${portToUse} is in use. Trying port ${portToUse + 1}...`);
+      startServer(portToUse + 1);
+    } else {
+      console.error('[Server Error]', err);
+    }
+  });
+}
+
+startServer(PORT);
