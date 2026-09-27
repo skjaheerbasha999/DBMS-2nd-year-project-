@@ -1,0 +1,30 @@
+{
+  "name": "trackflow-backend",
+  "version": "1.0.0",
+  "description": "Backend API server for TrackFlow Software Project & Issue Tracking System (DBMS Capstone)",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "seed": "node scripts/seed.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "pg": "^8.23.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  },
+  "keywords": [
+    "dbms",
+    "issue-tracker",
+    "express",
+    "sqlite",
+    "relational-database"
+  ],
+  "author": "",
+  "license": "ISC"
+}

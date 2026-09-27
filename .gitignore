@@ -1,0 +1,21 @@
+# Node modules
+node_modules/
+*/node_modules/
+
+# Environment variables
+.env
+.env.local
+
+# SQLite database files
+*.sqlite
+*.sqlite3
+*.db
+Backend/database.sqlite
+
+# Logs
+*.log
+npm-debug.log*
+
+# Dist / build
+dist/
+build/
