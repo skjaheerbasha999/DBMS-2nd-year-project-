@@ -2,15 +2,41 @@ const express = require('express');
 const router = express.Router();
 const { queryAll, queryOne, execute } = require('../db');
 
-// GET /api/users - List all users
+// GET /api/users - List all users with issue resolution stats
 router.get('/', (req, res) => {
-  const users = queryAll('SELECT user_id, name, email, phone, role, created_at FROM USER ORDER BY user_id DESC');
+  const users = queryAll(`
+    SELECT 
+      u.user_id,
+      u.name,
+      u.email,
+      u.phone,
+      u.role,
+      u.created_at,
+      COUNT(i.issue_id) as total_issues,
+      SUM(CASE WHEN i.status_id = 1 OR i.status_id = 2 THEN 1 ELSE 0 END) as open_issues,
+      SUM(CASE WHEN i.status_id = 3 THEN 1 ELSE 0 END) as resolved_issues
+    FROM USER u
+    LEFT JOIN ISSUE i ON u.user_id = i.reported_by
+    GROUP BY u.user_id, u.name, u.email, u.phone, u.role, u.created_at
+    ORDER BY u.user_id DESC
+  `);
   res.json({ success: true, count: users.length, data: users });
 });
 
 // GET /api/users/:id - Get single user with assigned projects
 router.get('/:id', (req, res) => {
-  const user = queryOne('SELECT user_id, name, email, phone, role, created_at FROM USER WHERE user_id = ?', [req.params.id]);
+  const user = queryOne(`
+    SELECT 
+      u.user_id, u.name, u.email, u.phone, u.role, u.created_at,
+      COUNT(i.issue_id) as total_issues,
+      SUM(CASE WHEN i.status_id = 1 OR i.status_id = 2 THEN 1 ELSE 0 END) as open_issues,
+      SUM(CASE WHEN i.status_id = 3 THEN 1 ELSE 0 END) as resolved_issues
+    FROM USER u
+    LEFT JOIN ISSUE i ON u.user_id = i.reported_by
+    WHERE u.user_id = ?
+    GROUP BY u.user_id, u.name, u.email, u.phone, u.role, u.created_at
+  `, [req.params.id]);
+
   if (!user) {
     return res.status(404).json({ success: false, message: 'User not found' });
   }

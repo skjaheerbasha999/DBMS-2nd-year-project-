@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 
 <head>
   <meta charset="UTF-8" />
@@ -13,44 +13,44 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
     rel="stylesheet" />
 
-  <!-- React 18, Babel & Three.js CDN -->
+  <!-- React 18 & Babel CDN -->
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
   <style>
     /* ============================================================
-       DESIGN SYSTEM TOKENS & BASE STYLES
+       DESIGN SYSTEM TOKENS & LIGHT/DARK MODE
        ============================================================ */
-    :root {
-      --bg-base: #020817;
-      --bg-surface: #0f172a;
-      --bg-surface-2: #1e293b;
+    :root, [data-theme="dark"] {
+      --bg-base: #0F172A;
+      --bg-surface: #1E293B;
+      --bg-surface-2: #334155;
       --bg-glass: rgba(15, 23, 42, 0.85);
-      --bg-card: rgba(15, 23, 42, 0.9);
+      --bg-card: #111827;
+      --bg-hover: #1F2937;
 
-      --primary: #38bdf8;
-      --primary-dark: #0ea5e9;
-      --primary-glow: rgba(56, 189, 248, 0.25);
+      --primary: #3B82F6;
+      --primary-dark: #2563EB;
+      --primary-glow: rgba(59, 130, 246, 0.25);
 
-      --secondary: #818cf8;
-      --secondary-dark: #6366f1;
+      --secondary: #818CF8;
+      --secondary-dark: #6366F1;
 
-      --success: #34d399;
-      --success-bg: rgba(52, 211, 153, 0.12);
-      --warning: #fbbf24;
-      --warning-bg: rgba(251, 191, 36, 0.12);
-      --danger: #f87171;
-      --danger-bg: rgba(248, 113, 113, 0.12);
+      --success: #10B981;
+      --success-bg: rgba(16, 185, 129, 0.12);
+      --warning: #F59E0B;
+      --warning-bg: rgba(245, 158, 11, 0.12);
+      --danger: #EF4444;
+      --danger-bg: rgba(239, 68, 68, 0.12);
 
-      --text-primary: #f8fafc;
-      --text-secondary: #94a3b8;
-      --text-muted: #64748b;
+      --text-primary: #F8FAFC;
+      --text-secondary: #94A3B8;
+      --text-muted: #64748B;
 
-      --border: rgba(148, 163, 184, 0.15);
-      --border-light: rgba(148, 163, 184, 0.08);
-      --border-glow: rgba(56, 189, 248, 0.35);
+      --border: #1E293B;
+      --border-light: rgba(148, 163, 184, 0.1);
+      --border-glow: rgba(59, 130, 246, 0.35);
 
       --radius-sm: 6px;
       --radius-md: 10px;
@@ -62,9 +62,38 @@
       --font-mono: 'JetBrains Mono', monospace;
     }
 
-    *,
-    *::before,
-    *::after {
+    [data-theme="light"] {
+      --bg-base: #F8FAFC;
+      --bg-surface: #FFFFFF;
+      --bg-surface-2: #F1F5F9;
+      --bg-glass: rgba(255, 255, 255, 0.9);
+      --bg-card: #FFFFFF;
+      --bg-hover: #F8FAFC;
+
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --primary-glow: rgba(37, 99, 235, 0.15);
+
+      --secondary: #4F46E5;
+      --secondary-dark: #4338CA;
+
+      --success: #059669;
+      --success-bg: #D1FAE5;
+      --warning: #D97706;
+      --warning-bg: #FEF3C7;
+      --danger: #DC2626;
+      --danger-bg: #FEE2E2;
+
+      --text-primary: #0F172A;
+      --text-secondary: #64748B;
+      --text-muted: #94A3B8;
+
+      --border: #E2E8F0;
+      --border-light: #F1F5F9;
+      --border-glow: rgba(37, 99, 235, 0.3);
+    }
+
+    *, *::before, *::after {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
@@ -76,8 +105,7 @@
       color: var(--text-primary);
       line-height: 1.6;
       min-height: 100vh;
-      overflow-x: hidden;
-      -webkit-font-smoothing: antialiased;
+      transition: background-color 0.2s, color 0.2s;
     }
 
     #root {
@@ -86,35 +114,118 @@
       flex-direction: column;
     }
 
-    /* Scrollbars */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-base); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: var(--radius-full); }
 
-    ::-webkit-scrollbar-track {
+    /* Layout Components */
+    .app-header {
+      height: 64px;
       background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
-    ::-webkit-scrollbar-thumb {
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: var(--text-primary);
+      text-decoration: none;
+    }
+
+    .brand-logo {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 900;
+      font-size: 0.95rem;
+    }
+
+    .app-body {
+      display: flex;
+      flex: 1;
+    }
+
+    .sidebar {
+      width: 240px;
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border);
+      padding: 20px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s ease;
+      border: none;
+      background: transparent;
+      width: 100%;
+      text-align: left;
+    }
+
+    .nav-item:hover {
       background: var(--bg-surface-2);
-      border-radius: var(--radius-full);
+      color: var(--text-primary);
     }
 
-    /* Utility & Cards */
-    .glass {
-      background: var(--bg-glass);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--border);
+    .nav-item.active {
+      background: var(--primary);
+      color: #ffffff;
+      font-weight: 600;
     }
 
+    .nav-section-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin: 16px 14px 6px 14px;
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 28px 36px;
+      background: var(--bg-base);
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Cards */
     .card {
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: var(--radius-lg);
       padding: 20px;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      margin-bottom: 20px;
+      transition: border-color 0.2s;
     }
 
     .card:hover {
@@ -136,6 +247,38 @@
       color: var(--text-primary);
     }
 
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .stat-label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+
     /* Buttons */
     .btn {
       display: inline-flex;
@@ -147,809 +290,750 @@
       font-size: 0.88rem;
       font-weight: 600;
       cursor: pointer;
-      border: none;
-      transition: all 0.2s;
-      font-family: inherit;
-      text-decoration: none;
-      white-space: nowrap;
+      border: 1px solid transparent;
+      transition: all 0.15s ease;
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, var(--primary-dark), var(--secondary-dark));
-      color: white;
-      box-shadow: 0 4px 15px var(--primary-glow);
+      background: var(--primary);
+      color: #ffffff;
     }
-
-    .btn-primary:hover {
-      opacity: 0.92;
-      transform: translateY(-1px);
-    }
+    .btn-primary:hover { background: var(--primary-dark); }
 
     .btn-secondary {
       background: var(--bg-surface-2);
       color: var(--text-primary);
-      border: 1px solid var(--border);
+      border-color: var(--border);
     }
+    .btn-secondary:hover { background: var(--bg-hover); }
 
-    .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.08);
+    .btn-success {
+      background: var(--success);
+      color: #ffffff;
     }
 
     .btn-danger {
-      background: var(--danger-bg);
-      color: var(--danger);
-      border: 1px solid rgba(248, 113, 113, 0.3);
-    }
-
-    .btn-danger:hover {
-      background: rgba(248, 113, 113, 0.25);
+      background: var(--danger);
+      color: #ffffff;
     }
 
     .btn-sm {
-      padding: 5px 10px;
-      font-size: 0.78rem;
+      padding: 6px 12px;
+      font-size: 0.8rem;
       border-radius: var(--radius-sm);
     }
 
-    /* Form Controls */
-    .form-group {
-      margin-bottom: 16px;
+    /* Tables */
+    .table-responsive {
+      overflow-x: auto;
     }
 
-    .form-label {
-      display: block;
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: var(--text-secondary);
-      margin-bottom: 6px;
-    }
-
-    .form-input,
-    .form-select,
-    .form-textarea {
+    .table {
       width: 100%;
-      padding: 10px 14px;
-      background: rgba(2, 8, 23, 0.7);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      color: var(--text-primary);
+      border-collapse: collapse;
+      text-align: left;
       font-size: 0.9rem;
-      font-family: inherit;
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
     }
 
-    .form-input:focus,
-    .form-select:focus,
-    .form-textarea:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px var(--primary-glow);
+    .table th {
+      background: var(--bg-surface-2);
+      color: var(--text-secondary);
+      font-weight: 600;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-light);
+      color: var(--text-primary);
+    }
+
+    .table tbody tr:hover {
+      background: var(--bg-surface-2);
     }
 
     /* Badges */
     .badge {
       display: inline-flex;
       align-items: center;
-      gap: 4px;
       padding: 3px 9px;
       border-radius: var(--radius-full);
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.03em;
+      font-size: 0.75rem;
+      font-weight: 600;
       text-transform: uppercase;
-      font-family: var(--font-mono);
+      letter-spacing: 0.02em;
     }
 
-    .badge-open {
-      background: rgba(96, 165, 250, 0.14);
-      color: #60a5fa;
-      border: 1px solid rgba(96, 165, 250, 0.3);
-    }
+    .badge-high, .badge-critical { background: var(--danger-bg); color: var(--danger); }
+    .badge-medium { background: var(--warning-bg); color: var(--warning); }
+    .badge-low { background: var(--success-bg); color: var(--success); }
 
-    .badge-in-progress {
-      background: rgba(251, 191, 36, 0.14);
-      color: #fbbf24;
-      border: 1px solid rgba(251, 191, 36, 0.3);
-    }
+    .badge-open { background: rgba(59, 130, 246, 0.15); color: var(--primary); }
+    .badge-in-progress { background: var(--warning-bg); color: var(--warning); }
+    .badge-resolved, .badge-closed { background: var(--success-bg); color: var(--success); }
 
-    .badge-resolved {
-      background: rgba(52, 211, 153, 0.14);
-      color: #34d399;
-      border: 1px solid rgba(52, 211, 153, 0.3);
-    }
-
-    .badge-closed {
-      background: rgba(100, 116, 139, 0.14);
-      color: #94a3b8;
-      border: 1px solid rgba(100, 116, 139, 0.3);
-    }
-
-    .badge-low {
-      background: rgba(52, 211, 153, 0.12);
-      color: #34d399;
-      border: 1px solid rgba(52, 211, 153, 0.25);
-    }
-
-    .badge-medium {
-      background: rgba(251, 191, 36, 0.12);
-      color: #fbbf24;
-      border: 1px solid rgba(251, 191, 36, 0.25);
-    }
-
-    .badge-high {
-      background: rgba(248, 113, 113, 0.12);
-      color: #f87171;
-      border: 1px solid rgba(248, 113, 113, 0.25);
-    }
-
-    /* Tables */
-    .table-container {
-      width: 100%;
-      overflow-x: auto;
-      border-radius: var(--radius-md);
-      border: 1px solid var(--border);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.88rem;
-      text-align: left;
-    }
-
-    th {
+    .badge-cat {
       background: var(--bg-surface-2);
-      padding: 12px 16px;
-      font-weight: 600;
-      color: var(--text-secondary);
-      border-bottom: 1px solid var(--border);
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    td {
-      padding: 12px 16px;
-      border-bottom: 1px solid var(--border-light);
       color: var(--text-primary);
+      border: 1px solid var(--border);
+      text-transform: none;
     }
 
-    tr:last-child td {
-      border-bottom: none;
-    }
-
-    tr:hover td {
-      background: rgba(255, 255, 255, 0.02);
-    }
-
-    /* Layout Structure */
-    .app-layout {
-      display: flex;
-      min-height: 100vh;
-    }
-
-    .sidebar {
-      width: 250px;
+    /* AI Analysis Panel */
+    .ai-box {
       background: var(--bg-surface);
-      border-right: 1px solid var(--border);
-      padding: 24px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
+      border: 1px solid var(--border-glow);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin: 20px 0;
     }
 
-    .sidebar-brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 1.25rem;
-      font-weight: 800;
+    .ai-box-title {
+      font-size: 1.1rem;
+      font-weight: 700;
       color: var(--primary);
-      text-decoration: none;
-      padding: 0 8px;
-    }
-
-    .sidebar-nav {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .nav-item {
+      margin-bottom: 16px;
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 10px 14px;
-      border-radius: var(--radius-md);
+      gap: 10px;
+    }
+
+    .ai-section {
+      margin-bottom: 18px;
+    }
+
+    .ai-section-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
       color: var(--text-secondary);
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
+      margin-bottom: 4px;
     }
 
-    .nav-item:hover {
+    .ai-section-content {
+      font-size: 0.93rem;
       color: var(--text-primary);
-      background: rgba(255, 255, 255, 0.05);
+      line-height: 1.6;
     }
 
-    .nav-item.active {
-      color: white;
-      background: linear-gradient(135deg, var(--primary-dark), var(--secondary-dark));
-      font-weight: 600;
-      box-shadow: 0 4px 12px var(--primary-glow);
+    .code-block {
+      background: #020817;
+      color: #38bdf8;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      padding: 14px;
+      border-radius: var(--radius-md);
+      overflow-x: auto;
+      margin-top: 8px;
+      border: 1px solid var(--border);
     }
 
-    .main-content {
-      flex: 1;
+    /* Resolution Timeline */
+    .timeline {
       display: flex;
       flex-direction: column;
-      background: var(--bg-base);
+      gap: 16px;
+      margin-top: 16px;
+      position: relative;
+      padding-left: 20px;
     }
 
-    .top-header {
-      height: 64px;
-      background: var(--bg-surface);
-      border-bottom: 1px solid var(--border);
-      padding: 0 28px;
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 7px;
+      top: 6px;
+      bottom: 6px;
+      width: 2px;
+      background: var(--border);
+    }
+
+    .timeline-item {
+      position: relative;
       display: flex;
-      align-items: center;
-      justify-content: space-between;
+      flex-direction: column;
+      gap: 2px;
     }
 
-    .page-title {
-      font-size: 1.3rem;
+    .timeline-dot {
+      position: absolute;
+      left: -20px;
+      top: 6px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--primary);
+      border: 2px solid var(--bg-card);
+    }
+
+    .timeline-event {
+      font-size: 0.88rem;
       font-weight: 700;
       color: var(--text-primary);
     }
 
-    .content-area {
-      padding: 28px;
-      flex: 1;
+    .timeline-desc {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
     }
 
-    /* Metric Counters */
-    .metrics-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 20px;
-      margin-bottom: 28px;
-    }
-
-    .metric-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 20px;
-    }
-
-    .metric-label {
-      font-size: 0.8rem;
-      font-weight: 600;
+    .timeline-date {
+      font-size: 0.75rem;
       color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
     }
 
-    .metric-val {
-      font-size: 2rem;
-      font-weight: 800;
-      margin-top: 6px;
-      color: var(--text-primary);
-    }
-
-    /* Modal Overlay */
+    /* Modals */
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(2, 8, 23, 0.85);
-      backdrop-filter: blur(8px);
-      z-index: 1000;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
       display: flex;
       align-items: center;
       justify-content: center;
+      z-index: 1000;
       padding: 20px;
     }
 
     .modal-box {
-      background: var(--bg-surface);
+      background: var(--bg-card);
       border: 1px solid var(--border);
-      border-radius: var(--radius-xl);
-      padding: 28px;
+      border-radius: var(--radius-lg);
       width: 100%;
-      max-width: 560px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+      max-width: 580px;
+      padding: 24px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
     }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.83rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      background: var(--bg-surface-2);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--primary);
+    }
+
+    .role-badge {
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+    .role-user { background: var(--bg-surface-2); color: var(--primary); border: 1px solid var(--border); }
+    .role-admin { background: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning); }
   </style>
 </head>
 
 <body>
   <div id="root"></div>
 
-  <!-- React Application Source -->
   <script type="text/babel">
-    const { useState, useEffect, useRef } = React;
+    const { useState, useEffect } = React;
 
-    // ============================================================
-    // SVG ICONS
-    // ============================================================
+    // SVG Icons
     const Icons = {
-      Database: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><ellipse cx="12" cy="5" rx="9" ry="3" /><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" /><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" /></svg>,
-      Kanban: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z" /><path d="M8 10v4" /><path d="M12 10v2" /><path d="M16 10v6" /></svg>,
-      Bug: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect width="8" height="14" x="8" y="6" rx="4" /><path d="m19 7-3 2" /><path d="m5 7 3 2" /><path d="m19 19-3-2" /><path d="m5 19 3-2" /><path d="M20 13h-4" /><path d="M4 13h4" /></svg>,
-      Users: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>,
-      Report: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" x2="18" y1="20" y2="10" /><line x1="12" x2="12" y1="20" y2="4" /><line x1="6" x2="6" y1="20" y2="14" /></svg>,
-      Plus: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14" /><path d="M12 5v14" /></svg>,
-      Search: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>,
-      Message: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>,
-      X: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>,
-      Sparkles: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3z" /></svg>
+      LayoutDashboard: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>,
+      AlertCircle: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
+      PlusCircle: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>,
+      Users: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+      Bot: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8.01" y2="16"/><line x1="16" y1="16" x2="16.01" y2="16"/></svg>,
+      FileText: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>,
+      User: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
+      LogOut: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
+      Sun: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>,
+      Moon: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>,
+      Check: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>,
+      X: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+      RefreshCw: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
     };
 
-    // ============================================================
-    // INITIAL DBMS RELATIONAL SEED DATA
-    // ============================================================
-    const SEED_PROJECTS = [
-      { projectId: 1, projectName: 'DBMS Query Optimizer', description: 'SQL query optimizer engine and transaction manager.', startDate: '2026-01-10', deadline: '2026-06-30', status: 'In Progress' },
-      { projectId: 2, projectName: 'Cloud Storage Sync Gateway', description: 'Distributed blob storage file synchronization.', startDate: '2026-02-15', deadline: '2026-07-31', status: 'Open' },
-      { projectId: 3, projectName: 'Payment API Integration', description: 'Stripe and PayPal gateway abstraction layer.', startDate: '2026-03-01', deadline: '2026-05-31', status: 'Resolved' }
-    ];
+    const API_BASE = '/api';
 
-    const SEED_MEMBERS = [
-      { projectId: 1, userId: 1, role: 'Project Lead', joinedDate: '2026-01-10' },
-      { projectId: 1, userId: 2, role: 'Backend Engineer', joinedDate: '2026-01-12' },
-      { projectId: 1, userId: 3, role: 'Database Engineer', joinedDate: '2026-01-15' },
-      { projectId: 2, userId: 2, role: 'Lead Developer', joinedDate: '2026-02-15' },
-      { projectId: 2, userId: 4, role: 'Frontend Engineer', joinedDate: '2026-02-20' },
-      { projectId: 3, userId: 3, role: 'Backend Specialist', joinedDate: '2026-03-01' }
-    ];
-
-    const SEED_ISSUES = [
-      { issueId: 101, projectId: 1, title: 'Memory leak in B-Tree index node split', description: 'RAM spike when executing concurrent bulk insert queries.', assignedToId: 3, priority: 'High', status: 'In Progress', dueDate: '2026-04-10' },
-      { issueId: 102, projectId: 1, title: 'FK cascade delete throws unhandled exception', description: 'Deleting parent record causes orphaned references.', assignedToId: 2, priority: 'Medium', status: 'Open', dueDate: '2026-04-15' },
-      { issueId: 103, projectId: 2, title: 'OAuth2 Refresh token race condition', description: 'Background upload logs user out after token expiry.', assignedToId: 2, priority: 'High', status: 'Open', dueDate: '2026-04-08' },
-      { issueId: 104, projectId: 3, title: 'Webhook signature validation fails on sandbox', description: 'HMAC SHA-256 header hash mismatch on staging.', assignedToId: 3, priority: 'Low', status: 'Resolved', dueDate: '2026-03-25' }
-    ];
-
-    const SEED_USERS = [
-      { userId: 1, name: 'Lokesh Kumar', email: 'admin@trackflow.com', phone: '+91-9876543210', role: 'ADMIN' },
-      { userId: 2, name: 'Priya Sharma', email: 'priya@trackflow.com', phone: '+91-9123456789', role: 'USER' },
-      { userId: 3, name: 'Rahul Verma', email: 'rahul@trackflow.com', phone: '+91-9988776655', role: 'USER' },
-      { userId: 4, name: 'Anita Rao', email: 'anita@trackflow.com', phone: '+91-9000112233', role: 'USER' }
-    ];
-
-    const SEED_COMMENTS = [
-      { commentId: 1, issueId: 101, userId: 3, commentText: 'Reproduced issue with Valgrind profiling. Fix in progress.', createdDate: '2026-04-02 10:30' },
-      { commentId: 2, issueId: 101, userId: 2, commentText: 'Merged patch to main branch. Re-testing memory allocation.', createdDate: '2026-04-03 14:15' }
-    ];
-
-    // ============================================================
-    // MAIN APP COMPONENT
-    // ============================================================
     function App() {
-      const [activeTab, setActiveTab] = useState('dashboard');
-
-      // Entities State
-      const [projects, setProjects] = useState(SEED_PROJECTS);
-      const [members, setMembers] = useState(SEED_MEMBERS);
-      const [issues, setIssues] = useState(SEED_ISSUES);
-      const [users, setUsers] = useState(SEED_USERS);
-      const [comments, setComments] = useState(SEED_COMMENTS);
-
-      // Selected items for Detail views
-      const [selectedProjectId, setSelectedProjectId] = useState(1);
-      const [selectedIssueId, setSelectedIssueId] = useState(101);
-
-      // Search & Filter State for Issues
-      const [issueSearch, setIssueSearch] = useState('');
-      const [filterProject, setFilterProject] = useState('ALL');
-      const [filterPriority, setFilterPriority] = useState('ALL');
-      const [filterStatus, setFilterStatus] = useState('ALL');
-      const [filterAssignee, setFilterAssignee] = useState('ALL');
-
-      // Modals State
-      const [showCreateProjectModal, setShowCreateProjectModal] = useState(false);
-      const [showReportIssueModal, setShowReportIssueModal] = useState(false);
-      const [showAddMemberModal, setShowAddMemberModal] = useState(false);
-      const [showAddUserModal, setShowAddUserModal] = useState(false);
-
-      // Form Inputs
-      const [newProjName, setNewProjName] = useState('');
-      const [newProjDesc, setNewProjDesc] = useState('');
-      const [newProjStart, setNewProjStart] = useState('');
-      const [newProjDeadline, setNewProjDeadline] = useState('');
-      const [newProjStatus, setNewProjStatus] = useState('Open');
-
-      const [newIssueProjId, setNewIssueProjId] = useState(1);
-      const [newIssueTitle, setNewIssueTitle] = useState('');
-      const [newIssueDesc, setNewIssueDesc] = useState('');
-      const [newIssueAssignee, setNewIssueAssignee] = useState(2);
-      const [newIssuePriority, setNewIssuePriority] = useState('Medium');
-      const [newIssueStatus, setNewIssueStatus] = useState('Open');
-      const [newIssueDueDate, setNewIssueDueDate] = useState('');
-
-      const [newMemberUserId, setNewMemberUserId] = useState(2);
-      const [newMemberRole, setNewMemberRole] = useState('Developer');
-
-      const [newUserName, setNewUserName] = useState('');
-      const [newUserEmail, setNewUserEmail] = useState('');
-      const [newUserPhone, setNewUserPhone] = useState('');
-      const [newUserRole, setNewUserRole] = useState('USER');
-
-      const [newCommentText, setNewCommentText] = useState('');
-
-      // Reports State
-      const [reportProject, setReportProject] = useState('ALL');
-      const [reportType, setReportType] = useState('SUMMARY');
-      const [generatedReport, setGeneratedReport] = useState(true);
-
-      // AI Feature State
-      const [aiAnalysisResult, setAiAnalysisResult] = useState(null);
-      const [aiAnalysisLoading, setAiAnalysisLoading] = useState(false);
-      const [aiIssueSummaryResult, setAiIssueSummaryResult] = useState(null);
-      const [aiIssueSummaryLoading, setAiIssueSummaryLoading] = useState(false);
-      const [aiProjectSummaryResult, setAiProjectSummaryResult] = useState(null);
-      const [aiProjectSummaryLoading, setAiProjectSummaryLoading] = useState(false);
-
-      const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-        ? 'http://localhost:5000/api'
-        : '/api';
-
-      useEffect(() => {
-        setAiAnalysisResult(null);
-        setAiIssueSummaryResult(null);
-      }, [selectedIssueId]);
-
-      useEffect(() => {
-        setAiProjectSummaryResult(null);
-      }, [selectedProjectId]);
-
-      // AI Handlers
-      const handleAnalyzeIssue = async () => {
-        if (!selectedIssue) return;
-        setAiAnalysisLoading(true);
-        try {
-          const res = await fetch(`${API_BASE_URL}/ai/analyze-issue`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              title: selectedIssue.title,
-              description: selectedIssue.description,
-              projectName: getProjectName(selectedIssue.projectId),
-              assignedTo: getUserName(selectedIssue.assignedToId),
-              priority: selectedIssue.priority,
-              status: selectedIssue.status,
-              dueDate: selectedIssue.dueDate,
-              comments: selectedIssueComments
-            })
-          });
-          const data = await res.json();
-          if (data.success && data.analysis) {
-            setAiAnalysisResult(data.analysis);
-          } else {
-            alert(data.message || 'AI Analysis could not be completed.');
-          }
-        } catch (err) {
-          console.error('Error analyzing issue:', err);
-          alert('Could not connect to AI server backend.');
-        } finally {
-          setAiAnalysisLoading(false);
-        }
-      };
-
-      const handleGenerateIssueSummary = async () => {
-        if (!selectedIssue) return;
-        setAiIssueSummaryLoading(true);
-        try {
-          const res = await fetch(`${API_BASE_URL}/ai/summarize-issue`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              title: selectedIssue.title,
-              description: selectedIssue.description,
-              comments: selectedIssueComments
-            })
-          });
-          const data = await res.json();
-          if (data.success && data.summary) {
-            setAiIssueSummaryResult(data.summary);
-          } else {
-            alert(data.message || 'AI Issue Summary could not be generated.');
-          }
-        } catch (err) {
-          console.error('Error generating issue summary:', err);
-          alert('Could not connect to AI server backend.');
-        } finally {
-          setAiIssueSummaryLoading(false);
-        }
-      };
-
-      const handleGenerateProjectSummary = async () => {
-        if (!selectedProject) return;
-        setAiProjectSummaryLoading(true);
-        const projectIssues = issues.filter(i => i.projectId === selectedProject.projectId);
-        try {
-          const res = await fetch(`${API_BASE_URL}/ai/summarize-project`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              projectName: selectedProject.projectName,
-              description: selectedProject.description,
-              status: selectedProject.status,
-              startDate: selectedProject.startDate,
-              deadline: selectedProject.deadline,
-              totalIssues: projectIssues.length,
-              openIssues: projectIssues.filter(i => i.status === 'Open' || i.status === 'In Progress').length,
-              resolvedIssues: projectIssues.filter(i => i.status === 'Resolved' || i.status === 'Closed').length,
-              highPriorityIssues: projectIssues.filter(i => i.priority === 'High').length,
-              issues: projectIssues
-            })
-          });
-          const data = await res.json();
-          if (data.success && data.summary) {
-            setAiProjectSummaryResult(data.summary);
-          } else {
-            alert(data.message || 'AI Project Summary could not be generated.');
-          }
-        } catch (err) {
-          console.error('Error generating project summary:', err);
-          alert('Could not connect to AI server backend.');
-        } finally {
-          setAiProjectSummaryLoading(false);
-        }
-      };
-
-      // Helpers
-      const getUserName = (id) => {
-        const u = users.find(u => u.userId === parseInt(id));
-        return u ? u.name : 'Unassigned';
-      };
-      const getProjectName = (id) => {
-        const p = projects.find(p => p.projectId === parseInt(id));
-        return p ? p.projectName : 'Unknown';
-      };
-      const getProjectMembersCount = (pId) => {
-        return members.filter(m => m.projectId === pId).length;
-      };
-      const getProjectIssuesCount = (pId) => {
-        return issues.filter(i => i.projectId === pId).length;
-      };
-
-      // CRUD Operations
-      const handleCreateProject = (e) => {
-        e.preventDefault();
-        if (!newProjName.trim()) return;
-        const newProj = {
-          projectId: Date.now(),
-          projectName: newProjName.trim(),
-          description: newProjDesc,
-          startDate: newProjStart || new Date().toISOString().split('T')[0],
-          deadline: newProjDeadline || '2026-12-31',
-          status: newProjStatus
-        };
-        setProjects([newProj, ...projects]);
-        setShowCreateProjectModal(false);
-        setNewProjName(''); setNewProjDesc('');
-      };
-
-      const handleReportIssue = (e) => {
-        e.preventDefault();
-        if (!newIssueTitle.trim()) return;
-        const newIss = {
-          issueId: Math.floor(100 + Math.random() * 900),
-          projectId: parseInt(newIssueProjId),
-          title: newIssueTitle.trim(),
-          description: newIssueDesc,
-          assignedToId: parseInt(newIssueAssignee),
-          priority: newIssuePriority,
-          status: newIssueStatus,
-          dueDate: newIssueDueDate || '2026-12-31'
-        };
-        setIssues([newIss, ...issues]);
-        setShowReportIssueModal(false);
-        setNewIssueTitle(''); setNewIssueDesc('');
-      };
-
-      const handleAddMember = (e) => {
-        e.preventDefault();
-        const existing = members.find(m => m.projectId === selectedProjectId && m.userId === parseInt(newMemberUserId));
-        if (existing) {
-          alert('User is already a member of this project.');
-          return;
-        }
-        const newM = {
-          projectId: selectedProjectId,
-          userId: parseInt(newMemberUserId),
-          role: newMemberRole,
-          joinedDate: new Date().toISOString().split('T')[0]
-        };
-        setMembers([...members, newM]);
-        setShowAddMemberModal(false);
-      };
-
-      const handleAddUser = (e) => {
-        e.preventDefault();
-        if (!newUserName.trim() || !newUserEmail.trim()) return;
-        const newU = {
-          userId: Date.now(),
-          name: newUserName.trim(),
-          email: newUserEmail.trim(),
-          phone: newUserPhone || '+91-9000000000',
-          role: newUserRole
-        };
-        setUsers([...users, newU]);
-        setShowAddUserModal(false);
-        setNewUserName(''); setNewUserEmail('');
-      };
-
-      const handleAddComment = (e) => {
-        e.preventDefault();
-        if (!newCommentText.trim()) return;
-        const newC = {
-          commentId: Date.now(),
-          issueId: selectedIssueId,
-          userId: 1, // Current logged in user
-          commentText: newCommentText.trim(),
-          createdDate: new Date().toLocaleString()
-        };
-        setComments([...comments, newC]);
-        setNewCommentText('');
-      };
-
-      const handleUpdateIssue = (field, val) => {
-        setIssues(issues.map(i => {
-          if (i.issueId === selectedIssueId) {
-            return { ...i, [field]: val };
-          }
-          return i;
-        }));
-      };
-
-      // Filtered Issues List
-      const filteredIssues = issues.filter(i => {
-        const matchesSearch = !issueSearch.trim() ||
-          i.issueId.toString().includes(issueSearch.trim()) ||
-          i.title.toLowerCase().includes(issueSearch.toLowerCase());
-        const matchesProject = filterProject === 'ALL' || i.projectId === parseInt(filterProject);
-        const matchesPriority = filterPriority === 'ALL' || i.priority === filterPriority;
-        const matchesStatus = filterStatus === 'ALL' || i.status === filterStatus;
-        const matchesAssignee = filterAssignee === 'ALL' || i.assignedToId === parseInt(filterAssignee);
-        return matchesSearch && matchesProject && matchesPriority && matchesStatus && matchesAssignee;
+      // Theme State (Persisted)
+      const [theme, setTheme] = useState(localStorage.getItem('trackflow_theme') || 'dark');
+      
+      // Active User / Role State
+      const [currentUser, setCurrentUser] = useState({
+        userId: 3,
+        name: 'Rahul Verma',
+        email: 'rahul@trackflow.com',
+        role: 'USER'
       });
 
-      const selectedProject = projects.find(p => p.projectId === selectedProjectId) || projects[0];
-      const selectedIssue = issues.find(i => i.issueId === selectedIssueId) || issues[0];
-      const selectedIssueComments = comments.filter(c => c.issueId === selectedIssueId);
+      const [activeTab, setActiveTab] = useState('dashboard');
+
+      // Data States
+      const [issues, setIssues] = useState([]);
+      const [usersList, setUsersList] = useState([]);
+      const [stats, setStats] = useState(null);
+      const [loading, setLoading] = useState(false);
+
+      // Selected Issue Detail & AI Solver State
+      const [selectedIssue, setSelectedIssue] = useState(null);
+      const [aiLoading, setAiLoading] = useState(false);
+      const [aiSolution, setAiSolution] = useState(null);
+      const [additionalNote, setAdditionalNote] = useState('');
+      const [showStillNotSolvedInput, setShowStillNotSolvedInput] = useState(false);
+
+      // Modals
+      const [showReportModal, setShowReportModal] = useState(false);
+      const [newTitle, setNewTitle] = useState('');
+      const [newDesc, setNewDesc] = useState('');
+      const [newCategory, setNewCategory] = useState('Backend');
+      const [newPriority, setNewPriority] = useState('Medium');
+
+      // Theme toggle handler
+      useEffect(() => {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('trackflow_theme', theme);
+      }, [theme]);
+
+      const toggleTheme = () => {
+        setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
+      };
+
+      // Fetch Issues & Stats
+      const fetchData = async () => {
+        setLoading(true);
+        try {
+          // Fetch Issues
+          const isUser = currentUser.role === 'USER';
+          const issuesUrl = isUser ? `${API_BASE}/issues?reported_by=${currentUser.userId}` : `${API_BASE}/issues`;
+          const resIssues = await fetch(issuesUrl);
+          const dataIssues = await resIssues.json();
+          if (dataIssues.success) setIssues(dataIssues.data);
+
+          // Fetch Stats
+          const statsUrl = isUser ? `${API_BASE}/stats/summary?user_id=${currentUser.userId}` : `${API_BASE}/stats/summary`;
+          const resStats = await fetch(statsUrl);
+          const dataStats = await resStats.json();
+          if (dataStats.success) setStats(dataStats.data);
+
+          // Fetch Users (for Admin)
+          if (currentUser.role === 'ADMIN') {
+            const resUsers = await fetch(`${API_BASE}/users`);
+            const dataUsers = await resUsers.json();
+            if (dataUsers.success) setUsersList(dataUsers.data);
+          }
+        } catch (err) {
+          console.error('Error loading data:', err);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      useEffect(() => {
+        fetchData();
+      }, [currentUser, activeTab]);
+
+      // Switch Role / User Helper
+      const handleUserSwitch = (role) => {
+        if (role === 'USER') {
+          setCurrentUser({ userId: 3, name: 'Rahul Verma', email: 'rahul@trackflow.com', role: 'USER' });
+          setActiveTab('dashboard');
+        } else {
+          setCurrentUser({ userId: 1, name: 'System Administrator', email: 'admin@trackflow.com', role: 'ADMIN' });
+          setActiveTab('dashboard');
+        }
+      };
+
+      // Report Issue Submit
+      const handleReportSubmit = async (e) => {
+        e.preventDefault();
+        if (!newTitle.trim()) return;
+
+        try {
+          const res = await fetch(`${API_BASE}/issues`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title: newTitle,
+              description: newDesc,
+              category: newCategory,
+              priority: newPriority,
+              reported_by: currentUser.userId
+            })
+          });
+          const data = await res.json();
+          if (data.success) {
+            setShowReportModal(false);
+            setNewTitle('');
+            setNewDesc('');
+            fetchData();
+          }
+        } catch (err) {
+          alert('Failed to report issue.');
+        }
+      };
+
+      // Load Single Issue Detail with History & Comments
+      const handleOpenIssueDetail = async (issueId) => {
+        try {
+          const res = await fetch(`${API_BASE}/issues/${issueId}`);
+          const data = await res.json();
+          if (data.success) {
+            setSelectedIssue(data.data);
+            if (data.data.ai_solution_json) {
+              try {
+                setAiSolution(JSON.parse(data.data.ai_solution_json));
+              } catch (e) {
+                setAiSolution(null);
+              }
+            } else {
+              setAiSolution(null);
+            }
+            setShowStillNotSolvedInput(false);
+            setAdditionalNote('');
+          }
+        } catch (err) {
+          console.error('Error fetching issue detail:', err);
+        }
+      };
+
+      // AI Solve Problem Trigger
+      const handleAISolve = async () => {
+        if (!selectedIssue) return;
+        setAiLoading(true);
+        try {
+          const res = await fetch(`${API_BASE}/ai/solve-issue`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              issue_id: selectedIssue.issue_id,
+              title: selectedIssue.title,
+              description: selectedIssue.description,
+              category: selectedIssue.category,
+              priority: selectedIssue.priority_name,
+              comments: selectedIssue.comments
+            })
+          });
+          const data = await res.json();
+          if (data.success && data.aiSolution) {
+            setAiSolution(data.aiSolution);
+            handleOpenIssueDetail(selectedIssue.issue_id);
+            fetchData();
+          }
+        } catch (err) {
+          alert('Could not trigger AI problem solver.');
+        } finally {
+          setAiLoading(false);
+        }
+      };
+
+      // Confirm Solution (Problem Solved / Still Not Solved)
+      const handleConfirmSolution = async (solved) => {
+        if (!selectedIssue) return;
+        try {
+          const res = await fetch(`${API_BASE}/issues/${selectedIssue.issue_id}/confirm-solution`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              solved,
+              additional_info: additionalNote,
+              user_id: currentUser.userId
+            })
+          });
+          const data = await res.json();
+          if (data.success) {
+            setAdditionalNote('');
+            setShowStillNotSolvedInput(false);
+            handleOpenIssueDetail(selectedIssue.issue_id);
+            fetchData();
+          }
+        } catch (err) {
+          alert('Could not update solution status.');
+        }
+      };
 
       return (
-        <div className="app-layout">
-          {/* SIDEBAR NAVIGATION */}
-          <aside className="sidebar">
-            <a href="#" className="sidebar-brand">
-              <Icons.Database /> TrackFlow
-            </a>
+        <div>
+          {/* HEADER */}
+          <header className="app-header">
+            <div className="brand">
+              <div className="brand-logo">TF</div>
+              <span>TrackFlow</span>
+            </div>
 
-            <nav className="sidebar-nav">
-              <div
-                className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
-                onClick={() => setActiveTab('dashboard')}
-              >
-                <Icons.Kanban /> Dashboard
-              </div>
-              <div
-                className={`nav-item ${activeTab === 'projects' || activeTab === 'project-details' ? 'active' : ''}`}
-                onClick={() => setActiveTab('projects')}
-              >
-                <Icons.Database /> Projects
-              </div>
-              <div
-                className={`nav-item ${activeTab === 'issues' || activeTab === 'issue-details' ? 'active' : ''}`}
-                onClick={() => setActiveTab('issues')}
-              >
-                <Icons.Bug /> Issues
-              </div>
-              <div
-                className={`nav-item ${activeTab === 'members' ? 'active' : ''}`}
-                onClick={() => setActiveTab('members')}
-              >
-                <Icons.Users /> Team Members
-              </div>
-              <div
-                className={`nav-item ${activeTab === 'reports' ? 'active' : ''}`}
-                onClick={() => setActiveTab('reports')}
-              >
-                <Icons.Report /> DBMS Reports
-              </div>
-            </nav>
-          </aside>
-
-          {/* MAIN CONTENT AREA */}
-          <main className="main-content">
-            <header className="top-header">
-              <h1 className="page-title">
-                {activeTab === 'dashboard' && 'Dashboard'}
-                {activeTab === 'projects' && 'Software Projects'}
-                {activeTab === 'project-details' && `Project Details — ${selectedProject?.projectName}`}
-                {activeTab === 'issues' && 'Issue & Bug Tracker'}
-                {activeTab === 'issue-details' && `Issue Details — #${selectedIssue?.issueId}`}
-                {activeTab === 'members' && 'Team Members & User Directory'}
-                {activeTab === 'reports' && 'DBMS Relational Reports'}
-              </h1>
-
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <button className="btn btn-primary" onClick={() => setShowReportIssueModal(true)}>
-                  <Icons.Plus /> Report Issue
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              {/* Role Switcher for Testing */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--bg-surface-2)', padding: '4px 8px', borderRadius: 'var(--radius-md)' }}>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Role:</span>
+                <button
+                  className={`btn btn-sm ${currentUser.role === 'USER' ? 'btn-primary' : 'btn-secondary'}`}
+                  onClick={() => handleUserSwitch('USER')}
+                >
+                  User
                 </button>
-                <button className="btn btn-secondary" onClick={() => setShowCreateProjectModal(true)}>
-                  <Icons.Plus /> Create Project
+                <button
+                  className={`btn btn-sm ${currentUser.role === 'ADMIN' ? 'btn-primary' : 'btn-secondary'}`}
+                  onClick={() => handleUserSwitch('ADMIN')}
+                >
+                  Admin
                 </button>
               </div>
-            </header>
 
-            <div className="content-area">
-              {/* 1. DASHBOARD TAB */}
-              {activeTab === 'dashboard' && (
+              {/* Theme Toggle Button */}
+              <button className="btn btn-secondary btn-sm" onClick={toggleTheme} title="Toggle Light/Dark Mode">
+                {theme === 'dark' ? <Icons.Sun /> : <Icons.Moon />}
+              </button>
+
+              {/* + Report Issue Header Button */}
+              <button className="btn btn-primary btn-sm" onClick={() => setShowReportModal(true)}>
+                <Icons.PlusCircle /> + Report Issue
+              </button>
+
+              {/* User Avatar Info */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderLeft: '1px solid var(--border)', paddingLeft: '16px' }}>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '0.88rem', fontWeight: 600 }}>{currentUser.name}</div>
+                  <span className={`role-badge ${currentUser.role === 'ADMIN' ? 'role-admin' : 'role-user'}`}>
+                    {currentUser.role}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </header>
+
+          <div className="app-body">
+            {/* SIDEBAR NAVIGATION */}
+            <aside className="sidebar">
+              <div className="nav-section-title">Navigation</div>
+              
+              <button className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveTab('dashboard')}>
+                <Icons.LayoutDashboard /> Dashboard
+              </button>
+
+              {currentUser.role === 'USER' ? (
+                <>
+                  <button className={`nav-item ${activeTab === 'issues' ? 'active' : ''}`} onClick={() => setActiveTab('issues')}>
+                    <Icons.AlertCircle /> My Issues
+                  </button>
+                  <button className="nav-item" onClick={() => setShowReportModal(true)}>
+                    <Icons.PlusCircle /> Report Issue
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button className={`nav-item ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}>
+                    <Icons.Users /> Users
+                  </button>
+                  <button className={`nav-item ${activeTab === 'issues' ? 'active' : ''}`} onClick={() => setActiveTab('issues')}>
+                    <Icons.AlertCircle /> Issues
+                  </button>
+                  <button className={`nav-item ${activeTab === 'ai-solutions' ? 'active' : ''}`} onClick={() => setActiveTab('ai-solutions')}>
+                    <Icons.Bot /> AI Solutions
+                  </button>
+                  <button className={`nav-item ${activeTab === 'reports' ? 'active' : ''}`} onClick={() => setActiveTab('reports')}>
+                    <Icons.FileText /> Reports
+                  </button>
+                </>
+              )}
+
+              <button className={`nav-item ${activeTab === 'profile' ? 'active' : ''}`} onClick={() => setActiveTab('profile')}>
+                <Icons.User /> Profile
+              </button>
+              
+              <button className="nav-item" style={{ marginTop: 'auto', color: 'var(--danger)' }} onClick={() => alert('Logged out.')}>
+                <Icons.LogOut /> Logout
+              </button>
+            </aside>
+
+            {/* MAIN CONTENT AREA */}
+            <main className="main-content">
+              
+              {/* USER DASHBOARD VIEW */}
+              {activeTab === 'dashboard' && currentUser.role === 'USER' && (
                 <div>
-                  <div className="metrics-grid">
-                    <div className="metric-card">
-                      <div className="metric-label">Total Projects</div>
-                      <div className="metric-val" style={{ color: 'var(--primary)' }}>{projects.length}</div>
+                  <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '20px' }}>User Dashboard</h2>
+                  
+                  {/* User Stat Cards */}
+                  <div className="grid-4">
+                    <div className="stat-card">
+                      <div className="stat-label">My Issues</div>
+                      <div className="stat-value">{stats ? stats.my_issues : 0}</div>
                     </div>
-                    <div className="metric-card">
-                      <div className="metric-label">Total Issues</div>
-                      <div className="metric-val" style={{ color: 'var(--secondary)' }}>{issues.length}</div>
+                    <div className="stat-card">
+                      <div className="stat-label">Open Issues</div>
+                      <div className="stat-value" style={{ color: 'var(--primary)' }}>{stats ? stats.open_issues : 0}</div>
                     </div>
-                    <div className="metric-card">
-                      <div className="metric-label">Open Issues</div>
-                      <div className="metric-val" style={{ color: 'var(--warning)' }}>
-                        {issues.filter(i => i.status === 'Open' || i.status === 'In Progress').length}
-                      </div>
+                    <div className="stat-card">
+                      <div className="stat-label">In Progress</div>
+                      <div className="stat-value" style={{ color: 'var(--warning)' }}>{stats ? stats.in_progress : 0}</div>
                     </div>
-                    <div className="metric-card">
-                      <div className="metric-label">Resolved Issues</div>
-                      <div className="metric-val" style={{ color: 'var(--success)' }}>
-                        {issues.filter(i => i.status === 'Resolved' || i.status === 'Closed').length}
-                      </div>
+                    <div className="stat-card">
+                      <div className="stat-label">Resolved</div>
+                      <div className="stat-value" style={{ color: 'var(--success)' }}>{stats ? stats.resolved : 0}</div>
                     </div>
                   </div>
 
+                  {/* My Recent Issues Table */}
                   <div className="card">
                     <div className="card-header">
-                      <h2 className="card-title">Recent Issues</h2>
+                      <div className="card-title">My Recent Issues</div>
                     </div>
-                    <div className="table-container">
-                      <table>
+                    <div className="table-responsive">
+                      <table className="table">
+                        <thead>
+                          <tr>
+                            <th>Issue</th>
+                            <th>Category</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>AI Solution</th>
+                            <th>Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {issues.length === 0 ? (
+                            <tr><td colSpan="6" style={{ textAlign: 'center', color: 'var(--text-muted)' }}>No reported issues found.</td></tr>
+                          ) : (
+                            issues.map(iss => (
+                              <tr key={iss.issue_id}>
+                                <td style={{ fontWeight: 600 }}>{iss.title}</td>
+                                <td><span className="badge badge-cat">{iss.category || 'Backend'}</span></td>
+                                <td>
+                                  <span className={`badge badge-${(iss.priority_name || 'medium').toLowerCase()}`}>
+                                    {iss.priority_name || 'Medium'}
+                                  </span>
+                                </td>
+                                <td>
+                                  <span className={`badge badge-${(iss.status_name || 'open').toLowerCase().replace(' ', '-')}`}>
+                                    {iss.status_name || 'Open'}
+                                  </span>
+                                </td>
+                                <td>
+                                  <span style={{ fontSize: '0.85rem', color: iss.ai_status === 'Solved' ? 'var(--success)' : iss.ai_status === 'Generated' ? 'var(--primary)' : 'var(--text-secondary)' }}>
+                                    {iss.ai_status || 'Available'}
+                                  </span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-secondary btn-sm" onClick={() => handleOpenIssueDetail(iss.issue_id)}>
+                                    View
+                                  </button>
+                                </td>
+                              </tr>
+                            ))
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ADMIN DASHBOARD VIEW */}
+              {activeTab === 'dashboard' && currentUser.role === 'ADMIN' && (
+                <div>
+                  <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '20px' }}>System Admin Dashboard</h2>
+
+                  {/* Admin Row 1 Cards */}
+                  <div className="grid-4">
+                    <div className="stat-card">
+                      <div className="stat-label">Total Users</div>
+                      <div className="stat-value">{stats ? stats.users_total : 0}</div>
+                    </div>
+                    <div className="stat-card">
+                      <div className="stat-label">Active Users</div>
+                      <div className="stat-value">{stats ? stats.users_active : 0}</div>
+                    </div>
+                    <div className="stat-card">
+                      <div className="stat-label">Total Issues</div>
+                      <div className="stat-value">{stats ? stats.issues_total : 0}</div>
+                    </div>
+                    <div className="stat-card">
+                      <div className="stat-label">Resolved Issues</div>
+                      <div className="stat-value" style={{ color: 'var(--success)' }}>{stats ? stats.issues_resolved : 0}</div>
+                    </div>
+                  </div>
+
+                  {/* Admin Row 2 Cards */}
+                  <div className="grid-4">
+                    <div className="stat-card">
+                      <div className="stat-label">Open Issues</div>
+                      <div className="stat-value" style={{ color: 'var(--primary)' }}>{stats ? stats.issues_open : 0}</div>
+                    </div>
+                    <div className="stat-card">
+                      <div className="stat-label">In Progress</div>
+                      <div className="stat-value" style={{ color: 'var(--warning)' }}>{stats ? stats.issues_in_progress : 0}</div>
+                    </div>
+                    <div className="stat-card">
+                      <div className="stat-label">High Priority</div>
+                      <div className="stat-value" style={{ color: 'var(--danger)' }}>{stats ? stats.issues_high_priority : 0}</div>
+                    </div>
+                    <div className="stat-card">
+                      <div className="stat-label">AI Assisted</div>
+                      <div className="stat-value" style={{ color: 'var(--secondary)' }}>{stats ? stats.issues_ai_assisted : 0}</div>
+                    </div>
+                  </div>
+
+                  {/* Admin Recent Issues Table */}
+                  <div className="card">
+                    <div className="card-header">
+                      <div className="card-title">All System Recent Issues</div>
+                    </div>
+                    <div className="table-responsive">
+                      <table className="table">
                         <thead>
                           <tr>
                             <th>Issue ID</th>
                             <th>Issue</th>
-                            <th>Project</th>
-                            <th>Assigned To</th>
+                            <th>User</th>
+                            <th>Category</th>
                             <th>Priority</th>
                             <th>Status</th>
+                            <th>AI Solution</th>
+                            <th>Action</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {issues.slice(0, 5).map(issue => (
-                            <tr
-                              key={issue.issueId}
-                              style={{ cursor: 'pointer' }}
-                              onClick={() => { setSelectedIssueId(issue.issueId); setActiveTab('issue-details'); }}
-                            >
-                              <td style={{ fontFamily: 'var(--font-mono)', fontWeight: 700 }}>#{issue.issueId}</td>
-                              <td style={{ fontWeight: 600 }}>{issue.title}</td>
-                              <td>{getProjectName(issue.projectId)}</td>
-                              <td>{getUserName(issue.assignedToId)}</td>
+                          {issues.map(iss => (
+                            <tr key={iss.issue_id}>
+                              <td style={{ fontFamily: 'var(--font-mono)', fontWeight: 600 }}>#{iss.issue_id}</td>
+                              <td style={{ fontWeight: 600 }}>{iss.title}</td>
+                              <td>{iss.reporter_name || 'User'}</td>
+                              <td><span className="badge badge-cat">{iss.category || 'Backend'}</span></td>
                               <td>
-                                <span className={`badge badge-${issue.priority.toLowerCase()}`}>
-                                  {issue.priority}
+                                <span className={`badge badge-${(iss.priority_name || 'medium').toLowerCase()}`}>
+                                  {iss.priority_name || 'Medium'}
                                 </span>
                               </td>
                               <td>
-                                <span className={`badge badge-${issue.status.toLowerCase().replace(' ', '-')}`}>
-                                  {issue.status}
+                                <span className={`badge badge-${(iss.status_name || 'open').toLowerCase().replace(' ', '-')}`}>
+                                  {iss.status_name || 'Open'}
                                 </span>
+                              </td>
+                              <td>{iss.ai_status || 'Generated'}</td>
+                              <td>
+                                <button className="btn btn-secondary btn-sm" onClick={() => handleOpenIssueDetail(iss.issue_id)}>
+                                  View
+                                </button>
                               </td>
                             </tr>
                           ))}
@@ -960,778 +1044,272 @@
                 </div>
               )}
 
-              {/* 2. PROJECTS TAB */}
-              {activeTab === 'projects' && (
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-                    <p style={{ color: 'var(--text-secondary)' }}>Relational `PROJECT` entities in the system</p>
-                    <button className="btn btn-primary" onClick={() => setShowCreateProjectModal(true)}>
-                      <Icons.Plus /> Create Project
-                    </button>
-                  </div>
-
-                  <div className="table-container">
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>Project ID</th>
-                          <th>Project Name</th>
-                          <th>Description</th>
-                          <th>Start Date</th>
-                          <th>Deadline</th>
-                          <th>Status</th>
-                          <th>Members</th>
-                          <th>Issues</th>
-                          <th>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {projects.map(proj => (
-                          <tr key={proj.projectId}>
-                            <td style={{ fontFamily: 'var(--font-mono)', fontWeight: 700 }}>#{proj.projectId}</td>
-                            <td style={{ fontWeight: 700, color: 'var(--primary)' }}>{proj.projectName}</td>
-                            <td style={{ maxWidth: '280px', color: 'var(--text-secondary)' }}>{proj.description}</td>
-                            <td>{proj.startDate}</td>
-                            <td>{proj.deadline}</td>
-                            <td>
-                              <span className={`badge badge-${proj.status.toLowerCase().replace(' ', '-')}`}>
-                                {proj.status}
-                              </span>
-                            </td>
-                            <td style={{ fontWeight: 700 }}>{getProjectMembersCount(proj.projectId)}</td>
-                            <td style={{ fontWeight: 700 }}>{getProjectIssuesCount(proj.projectId)}</td>
-                            <td>
-                              <button
-                                className="btn btn-secondary btn-sm"
-                                onClick={() => { setSelectedProjectId(proj.projectId); setActiveTab('project-details'); }}
-                              >
-                                View Details
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
-
-              {/* 3. PROJECT DETAILS TAB */}
-              {activeTab === 'project-details' && selectedProject && (
-                <div>
-                  <div className="card" style={{ marginBottom: '24px' }}>
-                    <div className="card-header" style={{ flexWrap: 'wrap', gap: '12px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <h2 className="card-title">Project Information</h2>
-                        <span className={`badge badge-${selectedProject.status.toLowerCase().replace(' ', '-')}`}>
-                          {selectedProject.status}
-                        </span>
-                      </div>
-                      <button
-                        className="btn btn-primary btn-sm"
-                        onClick={handleGenerateProjectSummary}
-                        disabled={aiProjectSummaryLoading}
-                        style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-                      >
-                        <Icons.Sparkles />
-                        {aiProjectSummaryLoading ? 'Generating Project Summary...' : 'Generate Project Summary'}
-                      </button>
-                    </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-                      <div>
-                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Project ID</div>
-                        <div style={{ fontWeight: 700, fontFamily: 'var(--font-mono)' }}>#{selectedProject.projectId}</div>
-                      </div>
-                      <div>
-                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Project Name</div>
-                        <div style={{ fontWeight: 700 }}>{selectedProject.projectName}</div>
-                      </div>
-                      <div>
-                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Start Date</div>
-                        <div>{selectedProject.startDate}</div>
-                      </div>
-                      <div>
-                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Deadline</div>
-                        <div>{selectedProject.deadline}</div>
-                      </div>
-                    </div>
-                    <div style={{ marginTop: '16px', color: 'var(--text-secondary)' }}>
-                      <strong>Description:</strong> {selectedProject.description}
-                    </div>
-                  </div>
-
-                  {/* AI Project Summary Card */}
-                  {aiProjectSummaryResult && (
-                    <div className="card" style={{ marginBottom: '24px', borderLeft: '4px solid var(--primary)', background: 'rgba(56, 189, 248, 0.05)' }}>
-                      <div className="card-header" style={{ marginBottom: '10px' }}>
-                        <h3 className="card-title" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--primary)' }}>
-                          <Icons.Sparkles /> AI Project Summary
-                        </h3>
-                      </div>
-                      <p style={{ color: 'var(--text-primary)', whiteSpace: 'pre-line', lineHeight: '1.6', fontSize: '0.95rem' }}>
-                        {aiProjectSummaryResult}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Team Members Section */}
-                  <div className="card" style={{ marginBottom: '24px' }}>
-                    <div className="card-header">
-                      <h3 className="card-title">Team Members (PROJECT_MEMBER)</h3>
-                      <button className="btn btn-secondary btn-sm" onClick={() => setShowAddMemberModal(true)}>
-                        <Icons.Plus /> Add Member
-                      </button>
-                    </div>
-                    <div className="table-container">
-                      <table>
-                        <thead>
-                          <tr>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Joined Date</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {members.filter(m => m.projectId === selectedProjectId).map(m => {
-                            const u = users.find(user => user.userId === m.userId);
-                            return (
-                              <tr key={m.userId}>
-                                <td style={{ fontWeight: 600 }}>{u ? u.name : 'Unknown User'}</td>
-                                <td>{u ? u.email : '-'}</td>
-                                <td style={{ fontWeight: 600, color: 'var(--secondary)' }}>{m.role}</td>
-                                <td>{m.joinedDate}</td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-
-                  {/* Project Issues Section */}
-                  <div className="card">
-                    <div className="card-header">
-                      <h3 className="card-title">Project Issues (ISSUE)</h3>
-                      <button className="btn btn-primary btn-sm" onClick={() => { setNewIssueProjId(selectedProjectId); setShowReportIssueModal(true); }}>
-                        <Icons.Plus /> Report Issue
-                      </button>
-                    </div>
-                    <div className="table-container">
-                      <table>
-                        <thead>
-                          <tr>
-                            <th>Issue ID</th>
-                            <th>Title</th>
-                            <th>Assigned Member</th>
-                            <th>Priority</th>
-                            <th>Status</th>
-                            <th>Due Date</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {issues.filter(i => i.projectId === selectedProjectId).map(issue => (
-                            <tr
-                              key={issue.issueId}
-                              style={{ cursor: 'pointer' }}
-                              onClick={() => { setSelectedIssueId(issue.issueId); setActiveTab('issue-details'); }}
-                            >
-                              <td style={{ fontFamily: 'var(--font-mono)', fontWeight: 700 }}>#{issue.issueId}</td>
-                              <td style={{ fontWeight: 600 }}>{issue.title}</td>
-                              <td>{getUserName(issue.assignedToId)}</td>
-                              <td><span className={`badge badge-${issue.priority.toLowerCase()}`}>{issue.priority}</span></td>
-                              <td><span className={`badge badge-${issue.status.toLowerCase().replace(' ', '-')}`}>{issue.status}</span></td>
-                              <td>{issue.dueDate}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* 4. ISSUES TAB */}
+              {/* ISSUES TAB */}
               {activeTab === 'issues' && (
                 <div>
-                  <div className="card" style={{ marginBottom: '20px' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px' }}>
-                      <div>
-                        <label className="form-label">Search</label>
-                        <input
-                          type="text"
-                          className="form-input"
-                          placeholder="Search ID or Title..."
-                          value={issueSearch}
-                          onChange={(e) => setIssueSearch(e.target.value)}
-                        />
-                      </div>
-                      <div>
-                        <label className="form-label">Project</label>
-                        <select className="form-select" value={filterProject} onChange={(e) => setFilterProject(e.target.value)}>
-                          <option value="ALL">All Projects</option>
-                          {projects.map(p => <option key={p.projectId} value={p.projectId}>{p.projectName}</option>)}
-                        </select>
-                      </div>
-                      <div>
-                        <label className="form-label">Priority</label>
-                        <select className="form-select" value={filterPriority} onChange={(e) => setFilterPriority(e.target.value)}>
-                          <option value="ALL">All Priorities</option>
-                          <option value="Low">Low</option>
-                          <option value="Medium">Medium</option>
-                          <option value="High">High</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="form-label">Status</label>
-                        <select className="form-select" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
-                          <option value="ALL">All Statuses</option>
-                          <option value="Open">Open</option>
-                          <option value="In Progress">In Progress</option>
-                          <option value="Resolved">Resolved</option>
-                          <option value="Closed">Closed</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="form-label">Assigned Member</label>
-                        <select className="form-select" value={filterAssignee} onChange={(e) => setFilterAssignee(e.target.value)}>
-                          <option value="ALL">All Members</option>
-                          {users.map(u => <option key={u.userId} value={u.userId}>{u.name}</option>)}
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="table-container">
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>ID</th>
-                          <th>Title</th>
-                          <th>Project</th>
-                          <th>Assigned To</th>
-                          <th>Priority</th>
-                          <th>Status</th>
-                          <th>Due Date</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredIssues.map(issue => (
-                          <tr
-                            key={issue.issueId}
-                            style={{ cursor: 'pointer' }}
-                            onClick={() => { setSelectedIssueId(issue.issueId); setActiveTab('issue-details'); }}
-                          >
-                            <td style={{ fontFamily: 'var(--font-mono)', fontWeight: 700 }}>#{issue.issueId}</td>
-                            <td style={{ fontWeight: 600 }}>{issue.title}</td>
-                            <td>{getProjectName(issue.projectId)}</td>
-                            <td>{getUserName(issue.assignedToId)}</td>
-                            <td><span className={`badge badge-${issue.priority.toLowerCase()}`}>{issue.priority}</span></td>
-                            <td><span className={`badge badge-${issue.status.toLowerCase().replace(' ', '-')}`}>{issue.status}</span></td>
-                            <td>{issue.dueDate}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
-
-              {/* 5. ISSUE DETAILS TAB */}
-              {activeTab === 'issue-details' && selectedIssue && (
-                <div>
-                  <div className="card" style={{ marginBottom: '24px' }}>
-                    <div className="card-header" style={{ flexWrap: 'wrap', gap: '12px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <h2 className="card-title">Issue Information — #{selectedIssue.issueId}</h2>
-                        <span className={`badge badge-${selectedIssue.status.toLowerCase().replace(' ', '-')}`}>
-                          {selectedIssue.status}
-                        </span>
-                      </div>
-                      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                        <button
-                          className="btn btn-primary btn-sm"
-                          onClick={handleAnalyzeIssue}
-                          disabled={aiAnalysisLoading}
-                          style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-                        >
-                          <Icons.Sparkles />
-                          {aiAnalysisLoading ? 'Analyzing Issue...' : 'AI Analyze Issue'}
-                        </button>
-                        <button
-                          className="btn btn-secondary btn-sm"
-                          onClick={handleGenerateIssueSummary}
-                          disabled={aiIssueSummaryLoading}
-                          style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-                        >
-                          <Icons.Sparkles />
-                          {aiIssueSummaryLoading ? 'Generating Summary...' : 'Generate Summary'}
-                        </button>
-                      </div>
-                    </div>
-
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '20px' }}>
-                      <div>
-                        <label className="form-label">Title</label>
-                        <div style={{ fontWeight: 700, fontSize: '1.05rem' }}>{selectedIssue.title}</div>
-                      </div>
-                      <div>
-                        <label className="form-label">Project</label>
-                        <div>{getProjectName(selectedIssue.projectId)}</div>
-                      </div>
-                      <div>
-                        <label className="form-label">Assigned Member</label>
-                        <select
-                          className="form-select"
-                          value={selectedIssue.assignedToId}
-                          onChange={(e) => handleUpdateIssue('assignedToId', parseInt(e.target.value))}
-                        >
-                          {users.map(u => <option key={u.userId} value={u.userId}>{u.name}</option>)}
-                        </select>
-                      </div>
-                      <div>
-                        <label className="form-label">Priority</label>
-                        <select
-                          className="form-select"
-                          value={selectedIssue.priority}
-                          onChange={(e) => handleUpdateIssue('priority', e.target.value)}
-                        >
-                          <option value="Low">Low</option>
-                          <option value="Medium">Medium</option>
-                          <option value="High">High</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="form-label">Status</label>
-                        <select
-                          className="form-select"
-                          value={selectedIssue.status}
-                          onChange={(e) => handleUpdateIssue('status', e.target.value)}
-                        >
-                          <option value="Open">Open</option>
-                          <option value="In Progress">In Progress</option>
-                          <option value="Resolved">Resolved</option>
-                          <option value="Closed">Closed</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="form-label">Due Date</label>
-                        <input
-                          type="date"
-                          className="form-input"
-                          value={selectedIssue.dueDate}
-                          onChange={(e) => handleUpdateIssue('dueDate', e.target.value)}
-                        />
-                      </div>
-                    </div>
-
-                    <div style={{ background: 'rgba(2, 8, 23, 0.5)', padding: '16px', borderRadius: 'var(--radius-md)' }}>
-                      <div className="form-label">Description</div>
-                      <p style={{ color: 'var(--text-secondary)' }}>{selectedIssue.description || 'No detailed description provided.'}</p>
-                    </div>
-
-                    {/* AI Issue Summary Section */}
-                    {aiIssueSummaryResult && (
-                      <div style={{ marginTop: '16px', background: 'rgba(129, 140, 248, 0.1)', padding: '14px 16px', borderRadius: 'var(--radius-md)', borderLeft: '4px solid var(--secondary)' }}>
-                        <div style={{ fontWeight: 700, color: 'var(--secondary)', marginBottom: '6px', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <Icons.Sparkles /> AI Generated Issue Summary
-                        </div>
-                        <p style={{ color: 'var(--text-primary)', fontSize: '0.95rem', lineHeight: '1.5' }}>{aiIssueSummaryResult}</p>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* AI Issue Analysis Card */}
-                  {aiAnalysisResult && (
-                    <div className="card" style={{ marginBottom: '24px', borderLeft: '4px solid var(--primary)', background: 'rgba(15, 23, 42, 0.95)' }}>
-                      <div className="card-header" style={{ marginBottom: '14px' }}>
-                        <h3 className="card-title" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--primary)' }}>
-                          <Icons.Sparkles /> AI Issue Analysis
-                        </h3>
-                      </div>
-
-                      <div style={{ display: 'flex', gap: '24px', marginBottom: '16px', flexWrap: 'wrap', background: 'rgba(2, 8, 23, 0.4)', padding: '12px 16px', borderRadius: 'var(--radius-md)' }}>
-                        <div>
-                          <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Category: </span>
-                          <span className="badge badge-open" style={{ fontWeight: 600, fontSize: '0.85rem' }}>{aiAnalysisResult.category || 'Bug'}</span>
-                        </div>
-                        <div>
-                          <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Suggested Priority: </span>
-                          <span className={`badge badge-${(aiAnalysisResult.suggestedPriority || 'Medium').toLowerCase()}`} style={{ fontWeight: 600, fontSize: '0.85rem' }}>
-                            {aiAnalysisResult.suggestedPriority || 'Medium'}
-                          </span>
-                        </div>
-                      </div>
-
-                      {aiAnalysisResult.possibleCause && (
-                        <div style={{ marginBottom: '16px' }}>
-                          <h4 style={{ color: 'var(--text-primary)', fontSize: '0.95rem', fontWeight: 700, marginBottom: '6px' }}>Possible Cause</h4>
-                          <p style={{ color: 'var(--text-secondary)', background: 'rgba(2, 8, 23, 0.5)', padding: '12px 14px', borderRadius: 'var(--radius-md)', fontSize: '0.9rem', lineHeight: '1.5' }}>
-                            {aiAnalysisResult.possibleCause}
-                          </p>
-                        </div>
-                      )}
-
-                      {aiAnalysisResult.troubleshootingSteps && aiAnalysisResult.troubleshootingSteps.length > 0 && (
-                        <div style={{ marginBottom: '16px' }}>
-                          <h4 style={{ color: 'var(--text-primary)', fontSize: '0.95rem', fontWeight: 700, marginBottom: '8px' }}>Suggested Troubleshooting</h4>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            {aiAnalysisResult.troubleshootingSteps.map((step, idx) => (
-                              <div key={idx} style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', background: 'rgba(30, 41, 59, 0.5)', padding: '10px 14px', borderRadius: 'var(--radius-sm)', borderLeft: '3px solid var(--primary-dark)' }}>
-                                {step}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {aiAnalysisResult.shortSummary && (
-                        <div>
-                          <h4 style={{ color: 'var(--text-primary)', fontSize: '0.95rem', fontWeight: 700, marginBottom: '4px' }}>Short Summary</h4>
-                          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{aiAnalysisResult.shortSummary}</p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Comments Section */}
-                  <div className="card">
-                    <div className="card-header">
-                      <h3 className="card-title">Comments & Discussions (COMMENT)</h3>
-                    </div>
-
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
-                      {selectedIssueComments.length === 0 ? (
-                        <p style={{ color: 'var(--text-muted)' }}>No comments added yet.</p>
-                      ) : (
-                        selectedIssueComments.map(c => (
-                          <div key={c.commentId} style={{ background: 'var(--bg-surface-2)', padding: '14px', borderRadius: 'var(--radius-md)' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                              <span style={{ fontWeight: 700, color: 'var(--primary)' }}>{getUserName(c.userId)}</span>
-                              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{c.createdDate}</span>
-                            </div>
-                            <p style={{ color: 'var(--text-primary)' }}>{c.commentText}</p>
-                          </div>
-                        ))
-                      )}
-                    </div>
-
-                    <form onSubmit={handleAddComment}>
-                      <div className="form-group">
-                        <textarea
-                          className="form-textarea"
-                          rows="3"
-                          placeholder="Write a comment..."
-                          value={newCommentText}
-                          onChange={(e) => setNewCommentText(e.target.value)}
-                        />
-                      </div>
-                      <button type="submit" className="btn btn-primary">
-                        <Icons.Message /> Add Comment
-                      </button>
-                    </form>
-                  </div>
-                </div>
-              )}
-
-              {/* 6. TEAM MEMBERS TAB */}
-              {activeTab === 'members' && (
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-                    <p style={{ color: 'var(--text-secondary)' }}>System `USER` & `PROJECT_MEMBER` Database Records</p>
-                    <button className="btn btn-primary" onClick={() => setShowAddUserModal(true)}>
-                      <Icons.Plus /> Add User
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                    <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>
+                      {currentUser.role === 'USER' ? 'My Reported Issues' : 'All System Issues'}
+                    </h2>
+                    <button className="btn btn-primary" onClick={() => setShowReportModal(true)}>
+                      <Icons.PlusCircle /> + Report Issue
                     </button>
                   </div>
 
-                  <div className="table-container">
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>Name</th>
-                          <th>Email</th>
-                          <th>Phone</th>
-                          <th>Role</th>
-                          <th>Projects Count</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {users.map(u => {
-                          const projCount = members.filter(m => m.userId === u.userId).length;
-                          return (
-                            <tr key={u.userId}>
-                              <td style={{ fontWeight: 700 }}>{u.name}</td>
-                              <td>{u.email}</td>
-                              <td>{u.phone}</td>
+                  <div className="card">
+                    <div className="table-responsive">
+                      <table className="table">
+                        <thead>
+                          <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Reported Date</th>
+                            <th>Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {issues.map(iss => (
+                            <tr key={iss.issue_id}>
+                              <td style={{ fontFamily: 'var(--font-mono)' }}>#{iss.issue_id}</td>
+                              <td style={{ fontWeight: 600 }}>{iss.title}</td>
+                              <td><span className="badge badge-cat">{iss.category || 'Backend'}</span></td>
                               <td>
-                                <span className={`badge ${u.role === 'ADMIN' ? 'badge-high' : 'badge-open'}`}>
-                                  {u.role}
+                                <span className={`badge badge-${(iss.priority_name || 'medium').toLowerCase()}`}>
+                                  {iss.priority_name || 'Medium'}
                                 </span>
                               </td>
-                              <td style={{ fontWeight: 700 }}>{projCount} Projects</td>
+                              <td>
+                                <span className={`badge badge-${(iss.status_name || 'open').toLowerCase().replace(' ', '-')}`}>
+                                  {iss.status_name || 'Open'}
+                                </span>
+                              </td>
+                              <td>{iss.created_date ? iss.created_date.slice(0, 10) : 'Recent'}</td>
+                              <td>
+                                <button className="btn btn-secondary btn-sm" onClick={() => handleOpenIssueDetail(iss.issue_id)}>
+                                  Inspect & Solve
+                                </button>
+                              </td>
                             </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
               )}
 
-              {/* 7. REPORTS TAB */}
-              {activeTab === 'reports' && (
+              {/* ADMIN USERS PAGE */}
+              {activeTab === 'users' && currentUser.role === 'ADMIN' && (
                 <div>
-                  <div className="card" style={{ marginBottom: '24px' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', alignItems: 'end' }}>
-                      <div>
-                        <label className="form-label">Select Project</label>
-                        <select className="form-select" value={reportProject} onChange={(e) => setReportProject(e.target.value)}>
-                          <option value="ALL">All Projects</option>
-                          {projects.map(p => <option key={p.projectId} value={p.projectId}>{p.projectName}</option>)}
-                        </select>
-                      </div>
-                      <div>
-                        <label className="form-label">Report Type</label>
-                        <select className="form-select" value={reportType} onChange={(e) => setReportType(e.target.value)}>
-                          <option value="SUMMARY">Full Relational Audit</option>
-                          <option value="STATUS">Issue Status Report</option>
-                          <option value="PRIORITY">Priority Spectrum Report</option>
-                        </select>
-                      </div>
-                      <div>
-                        <button className="btn btn-primary" onClick={() => setGeneratedReport(true)} style={{ width: '100%' }}>
-                          Generate Report
-                        </button>
-                      </div>
+                  <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '20px' }}>Registered System Users</h2>
+                  <div className="card">
+                    <div className="table-responsive">
+                      <table className="table">
+                        <thead>
+                          <tr>
+                            <th>User ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Registration Date</th>
+                            <th>Number of Issues</th>
+                            <th>Open Issues</th>
+                            <th>Resolved Issues</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {usersList.map(u => (
+                            <tr key={u.user_id}>
+                              <td style={{ fontFamily: 'var(--font-mono)' }}>#{u.user_id}</td>
+                              <td style={{ fontWeight: 600 }}>{u.name}</td>
+                              <td>{u.email}</td>
+                              <td>{u.created_at ? u.created_at.slice(0, 10) : '2026-09-01'}</td>
+                              <td>{u.total_issues || 0}</td>
+                              <td style={{ color: 'var(--primary)' }}>{u.open_issues || 0}</td>
+                              <td style={{ color: 'var(--success)' }}>{u.resolved_issues || 0}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                   </div>
-
-                  {generatedReport && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                      {/* Issue Status Report */}
-                      <div className="card">
-                        <div className="card-header">
-                          <h3 className="card-title">Issue Status Report</h3>
-                        </div>
-                        <div className="table-container">
-                          <table>
-                            <thead>
-                              <tr>
-                                <th>Status</th>
-                                <th>Number of Issues</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {['Open', 'In Progress', 'Resolved', 'Closed'].map(st => (
-                                <tr key={st}>
-                                  <td style={{ fontWeight: 600 }}>{st}</td>
-                                  <td style={{ fontWeight: 700 }}>{issues.filter(i => i.status === st).length}</td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-
-                      {/* Priority Report */}
-                      <div className="card">
-                        <div className="card-header">
-                          <h3 className="card-title">Priority Report</h3>
-                        </div>
-                        <div className="table-container">
-                          <table>
-                            <thead>
-                              <tr>
-                                <th>Priority</th>
-                                <th>Number of Issues</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {['Low', 'Medium', 'High'].map(pr => (
-                                <tr key={pr}>
-                                  <td style={{ fontWeight: 600 }}>{pr}</td>
-                                  <td style={{ fontWeight: 700 }}>{issues.filter(i => i.priority === pr).length}</td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-
-                      {/* Member Issue Report */}
-                      <div className="card">
-                        <div className="card-header">
-                          <h3 className="card-title">Member Issue Report</h3>
-                        </div>
-                        <div className="table-container">
-                          <table>
-                            <thead>
-                              <tr>
-                                <th>Member</th>
-                                <th>Assigned Issues</th>
-                                <th>Resolved Issues</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {users.map(u => (
-                                <tr key={u.userId}>
-                                  <td style={{ fontWeight: 600 }}>{u.name}</td>
-                                  <td style={{ fontWeight: 700 }}>{issues.filter(i => i.assignedToId === u.userId).length}</td>
-                                  <td style={{ fontWeight: 700, color: 'var(--success)' }}>
-                                    {issues.filter(i => i.assignedToId === u.userId && (i.status === 'Resolved' || i.status === 'Closed')).length}
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-
-                      {/* Project Report */}
-                      <div className="card">
-                        <div className="card-header">
-                          <h3 className="card-title">Project Summary Report</h3>
-                        </div>
-                        <div className="table-container">
-                          <table>
-                            <thead>
-                              <tr>
-                                <th>Project Name</th>
-                                <th>Total Issues</th>
-                                <th>Open Issues</th>
-                                <th>In Progress Issues</th>
-                                <th>Resolved Issues</th>
-                                <th>Deadline</th>
-                                <th>Project Status</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {projects.map(p => {
-                                const pIss = issues.filter(i => i.projectId === p.projectId);
-                                return (
-                                  <tr key={p.projectId}>
-                                    <td style={{ fontWeight: 700 }}>{p.projectName}</td>
-                                    <td style={{ fontWeight: 700 }}>{pIss.length}</td>
-                                    <td>{pIss.filter(i => i.status === 'Open').length}</td>
-                                    <td>{pIss.filter(i => i.status === 'In Progress').length}</td>
-                                    <td style={{ color: 'var(--success)', fontWeight: 700 }}>{pIss.filter(i => i.status === 'Resolved' || i.status === 'Closed').length}</td>
-                                    <td>{p.deadline}</td>
-                                    <td><span className={`badge badge-${p.status.toLowerCase().replace(' ', '-')}`}>{p.status}</span></td>
-                                  </tr>
-                                );
-                              })}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    </div>
-                  )}
                 </div>
               )}
-            </div>
-          </main>
 
-          {/* CREATE PROJECT MODAL */}
-          {showCreateProjectModal && (
-            <div className="modal-overlay">
-              <div className="modal-box">
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-                  <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Create New Project</h3>
-                  <button className="btn btn-secondary btn-sm" onClick={() => setShowCreateProjectModal(false)}><Icons.X /></button>
+              {/* ADMIN AI SOLUTIONS PAGE */}
+              {activeTab === 'ai-solutions' && currentUser.role === 'ADMIN' && (
+                <div>
+                  <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '20px' }}>AI Solutions & Diagnostic Hub</h2>
+
+                  <div className="grid-4" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
+                    <div className="stat-card">
+                      <div className="stat-label">Total AI Analyses</div>
+                      <div className="stat-value">{stats ? stats.ai_total_analyses : 0}</div>
+                    </div>
+                    <div className="stat-card">
+                      <div className="stat-label">AI Assisted Issues</div>
+                      <div className="stat-value" style={{ color: 'var(--secondary)' }}>{stats ? stats.ai_assisted_issues : 0}</div>
+                    </div>
+                    <div className="stat-card">
+                      <div className="stat-label">Successfully Resolved</div>
+                      <div className="stat-value" style={{ color: 'var(--success)' }}>{stats ? stats.ai_successfully_resolved : 0}</div>
+                    </div>
+                    <div className="stat-card">
+                      <div className="stat-label">Multiple Attempts</div>
+                      <div className="stat-value" style={{ color: 'var(--warning)' }}>{stats ? stats.ai_multiple_attempts : 0}</div>
+                    </div>
+                  </div>
+
+                  <div className="card">
+                    <div className="card-header">
+                      <div className="card-title">AI Resolution Activity Log</div>
+                    </div>
+                    <div className="table-responsive">
+                      <table className="table">
+                        <thead>
+                          <tr>
+                            <th>Issue</th>
+                            <th>User</th>
+                            <th>Category</th>
+                            <th>Attempts</th>
+                            <th>Final Status</th>
+                            <th>Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {issues.filter(i => (i.ai_attempts || 0) > 0 || i.ai_status !== 'Not Requested').map(i => (
+                            <tr key={i.issue_id}>
+                              <td style={{ fontWeight: 600 }}>{i.title}</td>
+                              <td>{i.reporter_name || 'User'}</td>
+                              <td><span className="badge badge-cat">{i.category || 'Backend'}</span></td>
+                              <td>{i.ai_attempts || 1}</td>
+                              <td>
+                                <span className={`badge badge-${(i.status_name || 'open').toLowerCase().replace(' ', '-')}`}>
+                                  {i.status_name || 'Open'}
+                                </span>
+                              </td>
+                              <td>
+                                <button className="btn btn-secondary btn-sm" onClick={() => handleOpenIssueDetail(i.issue_id)}>
+                                  View Analysis
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
                 </div>
-                <form onSubmit={handleCreateProject}>
-                  <div className="form-group">
-                    <label className="form-label">Project Name *</label>
-                    <input type="text" className="form-input" required value={newProjName} onChange={(e) => setNewProjName(e.target.value)} />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Description</label>
-                    <textarea className="form-textarea" rows="3" value={newProjDesc} onChange={(e) => setNewProjDesc(e.target.value)} />
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                    <div className="form-group">
-                      <label className="form-label">Start Date</label>
-                      <input type="date" className="form-input" value={newProjStart} onChange={(e) => setNewProjStart(e.target.value)} />
+              )}
+
+              {/* ADMIN REPORTS PAGE */}
+              {activeTab === 'reports' && currentUser.role === 'ADMIN' && (
+                <div>
+                  <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '20px' }}>System Reports & Analytics</h2>
+
+                  <div className="card">
+                    <div className="card-header">
+                      <div className="card-title">Category Breakdown</div>
                     </div>
-                    <div className="form-group">
-                      <label className="form-label">Deadline</label>
-                      <input type="date" className="form-input" value={newProjDeadline} onChange={(e) => setNewProjDeadline(e.target.value)} />
+                    <div className="table-responsive">
+                      <table className="table">
+                        <thead>
+                          <tr>
+                            <th>Category</th>
+                            <th>Total Issues Logged</th>
+                            <th>Distribution</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {stats && stats.category_breakdown ? (
+                            stats.category_breakdown.map((c, idx) => (
+                              <tr key={idx}>
+                                <td style={{ fontWeight: 600 }}>{c.category}</td>
+                                <td>{c.count}</td>
+                                <td>
+                                  <div style={{ background: 'var(--bg-surface-2)', height: '8px', borderRadius: '4px', width: '100%', maxWidth: '200px' }}>
+                                    <div style={{ background: 'var(--primary)', height: '100%', borderRadius: '4px', width: `${Math.min(100, (c.count / (stats.issues_total || 1)) * 100)}%` }}></div>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))
+                          ) : (
+                            <tr><td colSpan="3">Loading report metrics...</td></tr>
+                          )}
+                        </tbody>
+                      </table>
                     </div>
                   </div>
-                  <div className="form-group">
-                    <label className="form-label">Status</label>
-                    <select className="form-select" value={newProjStatus} onChange={(e) => setNewProjStatus(e.target.value)}>
-                      <option value="Open">Open</option>
-                      <option value="In Progress">In Progress</option>
-                      <option value="Resolved">Resolved</option>
-                      <option value="Closed">Closed</option>
-                    </select>
+                </div>
+              )}
+
+              {/* PROFILE TAB */}
+              {activeTab === 'profile' && (
+                <div>
+                  <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '20px' }}>User Profile</h2>
+                  <div className="card" style={{ maxWidth: '600px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                      <div>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Full Name</div>
+                        <div style={{ fontSize: '1.1rem', fontWeight: 700 }}>{currentUser.name}</div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Email Address</div>
+                        <div style={{ fontSize: '1rem' }}>{currentUser.email}</div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Account Role</div>
+                        <span className={`role-badge ${currentUser.role === 'ADMIN' ? 'role-admin' : 'role-user'}`}>
+                          {currentUser.role}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '20px' }}>
-                    <button type="button" className="btn btn-secondary" onClick={() => setShowCreateProjectModal(false)}>Cancel</button>
-                    <button type="submit" className="btn btn-primary">Create Project</button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          )}
+                </div>
+              )}
+            </main>
+          </div>
 
           {/* REPORT ISSUE MODAL */}
-          {showReportIssueModal && (
+          {showReportModal && (
             <div className="modal-overlay">
               <div className="modal-box">
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-                  <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Report Issue</h3>
-                  <button className="btn btn-secondary btn-sm" onClick={() => setShowReportIssueModal(false)}><Icons.X /></button>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>+ Report New Software Issue</h3>
+                  <button className="btn btn-secondary btn-sm" onClick={() => setShowReportModal(false)}><Icons.X /></button>
                 </div>
-                <form onSubmit={handleReportIssue}>
+                <form onSubmit={handleReportSubmit}>
                   <div className="form-group">
-                    <label className="form-label">Project *</label>
-                    <select className="form-select" value={newIssueProjId} onChange={(e) => setNewIssueProjId(e.target.value)}>
-                      {projects.map(p => <option key={p.projectId} value={p.projectId}>{p.projectName}</option>)}
+                    <label className="form-label">Issue Title *</label>
+                    <input type="text" className="form-input" required placeholder="e.g. Login API returns HTTP 500 error" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Category *</label>
+                    <select className="form-select" value={newCategory} onChange={(e) => setNewCategory(e.target.value)}>
+                      <option value="Frontend">Frontend</option>
+                      <option value="Backend">Backend</option>
+                      <option value="Database">Database</option>
+                      <option value="API">API</option>
+                      <option value="Authentication">Authentication</option>
+                      <option value="Other">Other</option>
                     </select>
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Title *</label>
-                    <input type="text" className="form-input" required value={newIssueTitle} onChange={(e) => setNewIssueTitle(e.target.value)} />
+                    <label className="form-label">Priority *</label>
+                    <select className="form-select" value={newPriority} onChange={(e) => setNewPriority(e.target.value)}>
+                      <option value="Low">Low</option>
+                      <option value="Medium">Medium</option>
+                      <option value="High">High</option>
+                    </select>
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Description</label>
-                    <textarea className="form-textarea" rows="3" value={newIssueDesc} onChange={(e) => setNewIssueDesc(e.target.value)} />
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                    <div className="form-group">
-                      <label className="form-label">Assigned Member</label>
-                      <select className="form-select" value={newIssueAssignee} onChange={(e) => setNewIssueAssignee(e.target.value)}>
-                        {users.map(u => <option key={u.userId} value={u.userId}>{u.name}</option>)}
-                      </select>
-                    </div>
-                    <div className="form-group">
-                      <label className="form-label">Priority</label>
-                      <select className="form-select" value={newIssuePriority} onChange={(e) => setNewIssuePriority(e.target.value)}>
-                        <option value="Low">Low</option>
-                        <option value="Medium">Medium</option>
-                        <option value="High">High</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                    <div className="form-group">
-                      <label className="form-label">Status</label>
-                      <select className="form-select" value={newIssueStatus} onChange={(e) => setNewIssueStatus(e.target.value)}>
-                        <option value="Open">Open</option>
-                        <option value="In Progress">In Progress</option>
-                        <option value="Resolved">Resolved</option>
-                        <option value="Closed">Closed</option>
-                      </select>
-                    </div>
-                    <div className="form-group">
-                      <label className="form-label">Due Date</label>
-                      <input type="date" className="form-input" value={newIssueDueDate} onChange={(e) => setNewIssueDueDate(e.target.value)} />
-                    </div>
+                    <label className="form-label">Issue Description</label>
+                    <textarea className="form-textarea" rows="4" placeholder="Describe what went wrong, steps to reproduce, or error messages..." value={newDesc} onChange={(e) => setNewDesc(e.target.value)} />
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '20px' }}>
-                    <button type="button" className="btn btn-secondary" onClick={() => setShowReportIssueModal(false)}>Cancel</button>
+                    <button type="button" className="btn btn-secondary" onClick={() => setShowReportModal(false)}>Cancel</button>
                     <button type="submit" className="btn btn-primary">Submit Issue</button>
                   </div>
                 </form>
@@ -1739,67 +1317,152 @@
             </div>
           )}
 
-          {/* ADD MEMBER MODAL */}
-          {showAddMemberModal && (
+          {/* ISSUE DETAILS & AI PROBLEM SOLVER MODAL */}
+          {selectedIssue && (
             <div className="modal-overlay">
-              <div className="modal-box">
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-                  <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Add Member to Project</h3>
-                  <button className="btn btn-secondary btn-sm" onClick={() => setShowAddMemberModal(false)}><Icons.X /></button>
+              <div className="modal-box" style={{ maxWidth: '800px', maxHeight: '90vh', overflowY: 'auto' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                      <span className="badge badge-cat">{selectedIssue.category || 'Backend'}</span>
+                      <span className={`badge badge-${(selectedIssue.priority_name || 'medium').toLowerCase()}`}>
+                        {selectedIssue.priority_name || 'Medium'}
+                      </span>
+                      <span className={`badge badge-${(selectedIssue.status_name || 'open').toLowerCase().replace(' ', '-')}`}>
+                        {selectedIssue.status_name || 'Open'}
+                      </span>
+                    </div>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 800 }}>#{selectedIssue.issue_id}: {selectedIssue.title}</h3>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                      Reported by {selectedIssue.reporter_name || 'User'} ({selectedIssue.reporter_email || ''})
+                    </div>
+                  </div>
+                  <button className="btn btn-secondary btn-sm" onClick={() => setSelectedIssue(null)}><Icons.X /></button>
                 </div>
-                <form onSubmit={handleAddMember}>
-                  <div className="form-group">
-                    <label className="form-label">Select User</label>
-                    <select className="form-select" value={newMemberUserId} onChange={(e) => setNewMemberUserId(e.target.value)}>
-                      {users.map(u => <option key={u.userId} value={u.userId}>{u.name} ({u.email})</option>)}
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Project Role</label>
-                    <input type="text" className="form-input" value={newMemberRole} onChange={(e) => setNewMemberRole(e.target.value)} placeholder="e.g. Developer, Lead, QA" />
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '20px' }}>
-                    <button type="button" className="btn btn-secondary" onClick={() => setShowAddMemberModal(false)}>Cancel</button>
-                    <button type="submit" className="btn btn-primary">Add Member</button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          )}
 
-          {/* ADD USER MODAL */}
-          {showAddUserModal && (
-            <div className="modal-overlay">
-              <div className="modal-box">
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-                  <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Add New System User</h3>
-                  <button className="btn btn-secondary btn-sm" onClick={() => setShowAddUserModal(false)}><Icons.X /></button>
+                <div className="card" style={{ background: 'var(--bg-surface)', padding: '16px', marginBottom: '20px' }}>
+                  <div style={{ fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '4px' }}>Description</div>
+                  <p style={{ fontSize: '0.92rem', color: 'var(--text-primary)' }}>{selectedIssue.description || 'No description provided.'}</p>
                 </div>
-                <form onSubmit={handleAddUser}>
-                  <div className="form-group">
-                    <label className="form-label">Full Name *</label>
-                    <input type="text" className="form-input" required value={newUserName} onChange={(e) => setNewUserName(e.target.value)} />
+
+                {/* AI SOLVE PROBLEM PROMINENT BUTTON */}
+                <div style={{ margin: '20px 0', textAlign: 'center' }}>
+                  <button className="btn btn-primary" style={{ padding: '12px 24px', fontSize: '1rem', width: '100%', justifyContent: 'center' }} onClick={handleAISolve} disabled={aiLoading}>
+                    <Icons.Bot /> {aiLoading ? 'AI Analyzing Problem...' : 'AI Solve Problem'}
+                  </button>
+                </div>
+
+                {/* AI SOLUTION DISPLAY PANEL */}
+                {aiSolution && (
+                  <div className="ai-box">
+                    <div className="ai-box-title">
+                      <Icons.Bot /> AI Problem Solver Diagnostics
+                    </div>
+
+                    {aiSolution.moreInfoRequired ? (
+                      <div style={{ background: 'var(--warning-bg)', border: '1px solid var(--warning)', padding: '16px', borderRadius: 'var(--radius-md)', color: 'var(--warning)' }}>
+                        <strong>More information is required to determine the exact cause.</strong>
+                        <p style={{ marginTop: '6px', fontSize: '0.9rem' }}>{aiSolution.requiredDetails || 'Please add more diagnostic details or error logs.'}</p>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="ai-section">
+                          <div className="ai-section-label">Problem Understanding</div>
+                          <div className="ai-section-content">{aiSolution.problemUnderstanding}</div>
+                        </div>
+
+                        <div className="ai-section">
+                          <div className="ai-section-label">Possible Cause</div>
+                          <div className="ai-section-content">{aiSolution.possibleCause}</div>
+                        </div>
+
+                        <div className="ai-section">
+                          <div className="ai-section-label">Recommended Solution</div>
+                          <div className="ai-section-content">{aiSolution.recommendedSolution}</div>
+                        </div>
+
+                        <div className="ai-section">
+                          <div className="ai-section-label">Step-by-Step Fix</div>
+                          <div className="ai-section-content">
+                            {Array.isArray(aiSolution.stepByStepFix) ? (
+                              aiSolution.stepByStepFix.map((step, sIdx) => <div key={sIdx} style={{ marginBottom: '4px' }}>{step}</div>)
+                            ) : (
+                              <div>{aiSolution.stepByStepFix}</div>
+                            )}
+                          </div>
+                        </div>
+
+                        {aiSolution.exampleCodeFix && (
+                          <div className="ai-section">
+                            <div className="ai-section-label">Example / Code Fix</div>
+                            <pre className="code-block"><code>{aiSolution.exampleCodeFix}</code></pre>
+                          </div>
+                        )}
+
+                        <div className="ai-section">
+                          <div className="ai-section-label">Verification</div>
+                          <div className="ai-section-content">{aiSolution.verification}</div>
+                        </div>
+
+                        <div className="ai-section">
+                          <div className="ai-section-label">Prevention</div>
+                          <div className="ai-section-content">{aiSolution.prevention}</div>
+                        </div>
+
+                        {/* USER SOLUTION CONFIRMATION BAR */}
+                        <div style={{ borderTop: '1px solid var(--border)', paddingTop: '16px', marginTop: '20px' }}>
+                          <div style={{ fontSize: '0.88rem', fontWeight: 700, marginBottom: '10px' }}>Did this AI solution solve your problem?</div>
+                          <div style={{ display: 'flex', gap: '12px' }}>
+                            <button className="btn btn-success" onClick={() => handleConfirmSolution(true)}>
+                              <Icons.Check /> ✓ Problem Solved
+                            </button>
+                            <button className="btn btn-secondary" onClick={() => setShowStillNotSolvedInput(true)}>
+                              <Icons.X /> ✕ Still Not Solved
+                            </button>
+                          </div>
+
+                          {showStillNotSolvedInput && (
+                            <div style={{ marginTop: '16px', background: 'var(--bg-surface-2)', padding: '16px', borderRadius: 'var(--radius-md)' }}>
+                              <label className="form-label">Add Additional Diagnostic Information or Comment:</label>
+                              <textarea className="form-textarea" rows="3" placeholder="Describe what happened when you tried the fix or paste new log output..." value={additionalNote} onChange={(e) => setAdditionalNote(e.target.value)} />
+                              <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
+                                <button className="btn btn-primary btn-sm" onClick={() => handleConfirmSolution(false)}>
+                                  Submit Notes & Keep Open
+                                </button>
+                                <button className="btn btn-secondary btn-sm" onClick={handleAISolve} disabled={aiLoading}>
+                                  <Icons.RefreshCw /> Re-analyze with AI
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    )}
                   </div>
-                  <div className="form-group">
-                    <label className="form-label">Email Address *</label>
-                    <input type="email" className="form-input" required value={newUserEmail} onChange={(e) => setNewUserEmail(e.target.value)} />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Phone Number</label>
-                    <input type="text" className="form-input" value={newUserPhone} onChange={(e) => setNewUserPhone(e.target.value)} />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">System Role</label>
-                    <select className="form-select" value={newUserRole} onChange={(e) => setNewUserRole(e.target.value)}>
-                      <option value="USER">USER</option>
-                      <option value="ADMIN">ADMIN</option>
-                    </select>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '20px' }}>
-                    <button type="button" className="btn btn-secondary" onClick={() => setShowAddUserModal(false)}>Cancel</button>
-                    <button type="submit" className="btn btn-primary">Add User</button>
-                  </div>
-                </form>
+                )}
+
+                {/* RESOLUTION HISTORY TIMELINE */}
+                <div style={{ marginTop: '24px' }}>
+                  <div style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '12px' }}>Resolution History</div>
+                  {selectedIssue.history && selectedIssue.history.length > 0 ? (
+                    <div className="timeline">
+                      {selectedIssue.history.map((h, hIdx) => (
+                        <div key={hIdx} className="timeline-item">
+                          <div className="timeline-dot"></div>
+                          <div className="timeline-event">{h.event_type}</div>
+                          <div className="timeline-desc">{h.description}</div>
+                          <div className="timeline-date">{h.created_at}</div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Issue history recorded upon activity.</div>
+                  )}
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px' }}>
+                  <button className="btn btn-secondary" onClick={() => setSelectedIssue(null)}>Close</button>
+                </div>
               </div>
             </div>
           )}
