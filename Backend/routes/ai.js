@@ -43,13 +43,12 @@ async function callGeminiAPI(promptText) {
   throw lastErr || new Error('All Gemini model endpoints failed.');
 }
 
-// Generate smart contextual solution if external API is unreachable or rate limited
+// Contextual fallback generator
 function generateContextualSolution({ title, description, category, priority, commentsText, isReanalysis }) {
   const t = (title || '').toLowerCase();
   const d = (description || '').toLowerCase();
   const cat = category || 'Backend';
 
-  // Check if description is too short / ambiguous
   if (!title || (title.length < 4 && description.length < 5)) {
     return {
       moreInfoRequired: true,
@@ -100,7 +99,7 @@ function generateContextualSolution({ title, description, category, priority, co
       "3. Add index on foreign key / filter columns.",
       "4. Verify database pool timeout settings."
     ];
-    exampleCodeFix = `-- SQLite / PostgreSQL Index Fix:\nCREATE INDEX IF NOT EXISTS idx_issue_reported_by ON ISSUE(reported_by);\nCREATE INDEX IF NOT EXISTS idx_issue_status ON ISSUE(status_id);`;
+    exampleCodeFix = `-- SQLite / PostgreSQL Index Fix:\nCREATE INDEX IF NOT EXISTS idx_issue_reported_by ON "ISSUE"(reported_by);\nCREATE INDEX IF NOT EXISTS idx_issue_status ON "ISSUE"(status_id);`;
     verification = "Re-execute high concurrency benchmark and verify response time drops under 50ms.";
     prevention = "Always index foreign keys and run EXPLAIN ANALYZE on complex relational queries.";
   } else if (cat === 'Frontend' || t.includes('ui') || t.includes('alignment') || d.includes('css')) {
@@ -159,13 +158,13 @@ function generateContextualSolution({ title, description, category, priority, co
 
 // MAIN AI SOLVE PROBLEM ENDPOINT
 router.post('/solve-issue', async (req, res) => {
-  const { issue_id, title, description, category, priority, comments, previousHistory } = req.body;
+  const { issue_id, title, description, category, priority, comments } = req.body;
 
   let targetIssueId = issue_id;
   let issueRecord = null;
 
   if (targetIssueId) {
-    issueRecord = queryOne('SELECT * FROM ISSUE WHERE issue_id = ?', [targetIssueId]);
+    issueRecord = await queryOne('SELECT * FROM "ISSUE" WHERE issue_id = ?', [targetIssueId]);
   }
 
   const issueTitle = title || issueRecord?.title || '';
@@ -233,20 +232,20 @@ Return ONLY raw JSON, no markdown formatting.
     const newAttempts = (issueRecord.ai_attempts || 0) + 1;
     const solutionJson = JSON.stringify(solutionObj);
 
-    execute(`
-      UPDATE ISSUE
+    await execute(`
+      UPDATE "ISSUE"
       SET ai_solution_json = ?, ai_status = 'Generated', ai_attempts = ?
       WHERE issue_id = ?
     `, [solutionJson, newAttempts, targetIssueId]);
 
     const eventTitle = isReanalysis ? 'AI Re-analysis' : 'AI Analysis Generated';
-    execute(`
-      INSERT INTO ISSUE_HISTORY (issue_id, event_type, description)
+    await execute(`
+      INSERT INTO "ISSUE_HISTORY" (issue_id, event_type, description)
       VALUES (?, ?, ?)
     `, [targetIssueId, eventTitle, `AI Problem Solver generated solution attempt #${newAttempts}`]);
 
-    execute(`
-      INSERT INTO ISSUE_HISTORY (issue_id, event_type, description)
+    await execute(`
+      INSERT INTO "ISSUE_HISTORY" (issue_id, event_type, description)
       VALUES (?, 'Solution Suggested', ?)
     `, [targetIssueId, `AI suggested fix for ${issueCat} issue`]);
   }
@@ -258,7 +257,6 @@ Return ONLY raw JSON, no markdown formatting.
   });
 });
 
-// Legacy / Compatible helper endpoints
 router.post('/analyze-issue', async (req, res) => {
   req.url = '/solve-issue';
   return router.handle(req, res);

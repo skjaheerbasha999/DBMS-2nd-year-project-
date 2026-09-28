@@ -6,9 +6,6 @@ const { initDb } = require('./db');
 const app = express();
 let PORT = process.env.PORT || 5000;
 
-// Initialize Database Tables and Seeds
-initDb();
-
 // Middlewares
 app.use(cors());
 app.use(express.json());
@@ -82,4 +79,10 @@ function startServer(portToUse) {
   });
 }
 
-startServer(PORT);
+// Async Database Setup before server launch
+async function main() {
+  await initDb();
+  startServer(PORT);
+}
+
+main();
