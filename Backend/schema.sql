@@ -1,5 +1,5 @@
 -- ============================================================
--- TrackFlow DBMS Relational Database Schema
+-- TrackFlow DBMS Relational Database Schema (8 Tables)
 -- ============================================================
 
 -- 1. USER TABLE (Unified Authentication & RBAC)
@@ -53,17 +53,13 @@ CREATE TABLE IF NOT EXISTS STATUS (
 -- 6. ISSUE TABLE
 CREATE TABLE IF NOT EXISTS ISSUE (
   issue_id INTEGER PRIMARY KEY AUTOINCREMENT,
-  project_id INTEGER NOT NULL DEFAULT 1,
+  project_id INTEGER NOT NULL,
   title TEXT NOT NULL,
   description TEXT,
-  category TEXT DEFAULT 'Backend', -- 'Frontend', 'Backend', 'Database', 'API', 'Authentication', 'Other'
   reported_by INTEGER NOT NULL,
   assigned_to INTEGER,
-  priority_id INTEGER NOT NULL DEFAULT 2,
-  status_id INTEGER NOT NULL DEFAULT 1, -- 1: Open, 2: In Progress, 3: Resolved, 4: Closed
-  ai_solution_json TEXT,
-  ai_status TEXT DEFAULT 'Not Requested', -- 'Not Requested', 'Generated', 'Solved', 'Attempt Failed'
-  ai_attempts INTEGER DEFAULT 0,
+  priority_id INTEGER NOT NULL,
+  status_id INTEGER NOT NULL DEFAULT 1,
   created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
   due_date TEXT,
   resolved_date DATETIME,
@@ -85,17 +81,7 @@ CREATE TABLE IF NOT EXISTS COMMENT (
   FOREIGN KEY (user_id) REFERENCES USER(user_id) ON DELETE CASCADE
 );
 
--- 8. ISSUE_HISTORY TABLE
-CREATE TABLE IF NOT EXISTS ISSUE_HISTORY (
-  history_id INTEGER PRIMARY KEY AUTOINCREMENT,
-  issue_id INTEGER NOT NULL,
-  event_type TEXT NOT NULL,
-  description TEXT NOT NULL,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (issue_id) REFERENCES ISSUE(issue_id) ON DELETE CASCADE
-);
-
--- 9. REPORT TABLE
+-- 8. REPORT TABLE
 CREATE TABLE IF NOT EXISTS REPORT (
   report_id TEXT PRIMARY KEY,
   project_id INTEGER,

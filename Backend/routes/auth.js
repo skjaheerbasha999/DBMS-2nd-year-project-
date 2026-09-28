@@ -4,20 +4,17 @@ const { queryOne, execute } = require('../db');
 
 // POST /api/auth/login
 router.post('/login', (req, res) => {
-  const { email, password, role } = req.body;
+  const { email, password } = req.body;
 
   if (!email || !password) {
     return res.status(400).json({ success: false, message: 'Email and password are required.' });
   }
 
-  const user = queryOne('SELECT * FROM USER WHERE email = ?', [email.toLowerCase().trim()]);
+  const cleanEmail = (email || '').toLowerCase().trim();
+  const user = queryOne('SELECT * FROM USER WHERE email = ?', [cleanEmail]);
 
   if (!user || user.password !== password) {
     return res.status(401).json({ success: false, message: 'Invalid email or password.' });
-  }
-
-  if (role && user.role !== role) {
-    return res.status(403).json({ success: false, message: `Access denied. Account role is ${user.role}, requested ${role}.` });
   }
 
   const { password: _, ...userWithoutPassword } = user;
@@ -32,28 +29,31 @@ router.post('/login', (req, res) => {
 
 // POST /api/auth/register
 router.post('/register', (req, res) => {
-  const { name, email, password, phone, role } = req.body;
+  const { name, email, password, phone } = req.body;
 
   if (!name || !email || !password) {
     return res.status(400).json({ success: false, message: 'Name, email, and password are required.' });
   }
 
-  const existing = queryOne('SELECT user_id FROM USER WHERE email = ?', [email.toLowerCase().trim()]);
+  const cleanEmail = (email || '').toLowerCase().trim();
+  const existing = queryOne('SELECT user_id FROM USER WHERE email = ?', [cleanEmail]);
   if (existing) {
-    return res.status(409).json({ success: false, message: 'User with this email already exists.' });
+    return res.status(409).json({ success: false, message: 'Invalid email or password.' }); // Generic message for privacy or duplicate
   }
 
-  const userRole = role === 'ADMIN' ? 'ADMIN' : 'USER';
+  // Public registration ALWAYS defaults to USER role
+  const userRole = 'USER';
   const result = execute(
     'INSERT INTO USER (name, email, password, phone, role) VALUES (?, ?, ?, ?, ?)',
-    [name.trim(), email.toLowerCase().trim(), password, phone || null, userRole]
+    [name.trim(), cleanEmail, password, phone || null, userRole]
   );
 
   const newUser = queryOne('SELECT user_id, name, email, phone, role, created_at FROM USER WHERE user_id = ?', [result.lastInsertRowid]);
 
   return res.status(201).json({
     success: true,
-    message: 'User registered successfully',
+    message: 'Account created successfully',
+    token: `mock-jwt-token-user-${newUser.user_id}`,
     user: newUser
   });
 });
@@ -65,7 +65,6 @@ router.get('/me', (req, res) => {
     return res.status(401).json({ success: false, message: 'No authorization header provided.' });
   }
 
-  // Extract user_id from token format `Bearer mock-jwt-token-user-1`
   const match = authHeader.match(/user-(\d+)/);
   if (!match) {
     return res.status(401).json({ success: false, message: 'Invalid token.' });
