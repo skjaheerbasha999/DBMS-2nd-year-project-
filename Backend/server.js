@@ -26,6 +26,7 @@ app.use('/api/projects', require('./routes/projects'));
 app.use('/api/issues', require('./routes/issues'));
 app.use('/api/reports', require('./routes/reports'));
 app.use('/api/stats', require('./routes/stats'));
+app.use('/api/ai', require('./routes/ai'));
 
 // Root & Health check
 app.get('/api/health', (req, res) => {
