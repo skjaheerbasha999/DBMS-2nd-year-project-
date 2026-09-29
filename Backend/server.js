@@ -35,6 +35,15 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+app.get('/api/health/setup-db', async (req, res) => {
+  try {
+    await initDb();
+    res.json({ success: true, message: 'Database schema and seed initialized successfully!' });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 app.get('/', (req, res) => {
   res.json({
     message: '🚀 TrackFlow DBMS Relational Backend API is running!',

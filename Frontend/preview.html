@@ -604,9 +604,9 @@
       { commentId: 2, issueId: 101, userId: 2, commentText: 'Merged patch to main branch. Re-testing memory allocation.', createdDate: '2026-04-03 14:15' }
     ];
 
-    const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    const API_BASE_URL = (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'))
       ? 'http://localhost:5000/api'
-      : '/api';
+      : 'https://dbms-2nd-year-project-3.onrender.com/api';
 
     function App() {
       // Theme State (Persisted in localStorage)

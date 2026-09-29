@@ -218,11 +218,12 @@ async function initDb() {
       console.log('[DB] PostgreSQL connection verified successfully.');
 
       console.log('[DB] Creating PostgreSQL tables if not exist...');
-      // Split schema by statement to guarantee order and completion
-      const tableStatements = schemaSql
-        .split(/;\s*[\r\n]+/)
+      // Strip SQL line comments first so statements are not skipped
+      const cleanSchemaSql = schemaSql.replace(/--.*$/gm, '').trim();
+      const tableStatements = cleanSchemaSql
+        .split(';')
         .map(s => s.trim())
-        .filter(s => s.length > 0 && !s.startsWith('--'));
+        .filter(s => s.length > 0);
 
       for (const stmt of tableStatements) {
         await pgPool.query(stmt);
@@ -243,10 +244,11 @@ async function initDb() {
       // Execute seed data
       if (seedSql) {
         console.log('[DB] Inserting initial seed data into PostgreSQL...');
-        const seedStatements = seedSql
-          .split(/;\s*[\r\n]+/)
+        const cleanSeedSql = seedSql.replace(/--.*$/gm, '').trim();
+        const seedStatements = cleanSeedSql
+          .split(';')
           .map(s => s.trim())
-          .filter(s => s.length > 0 && !s.startsWith('--'));
+          .filter(s => s.length > 0);
 
         for (const stmt of seedStatements) {
           try {

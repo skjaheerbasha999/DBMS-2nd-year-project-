@@ -574,6 +574,13 @@
     };
 
     const getApiBase = () => {
+      if (typeof window !== 'undefined') {
+        const stored = localStorage.getItem('trackflow_backend_url') || localStorage.getItem('trackflow_api_url');
+        if (stored) {
+          const clean = stored.trim().replace(/\/+$/, '');
+          return clean.endsWith('/api') ? clean : `${clean}/api`;
+        }
+      }
       if (typeof window !== 'undefined' && window.__TRACKFLOW_API_URL__) {
         const clean = window.__TRACKFLOW_API_URL.trim().replace(/\/+$/, '');
         return clean.endsWith('/api') ? clean : `${clean}/api`;
@@ -583,7 +590,7 @@
           return 'http://localhost:5000/api';
         }
       }
-      return '/api';
+      return 'https://dbms-2nd-year-project-3.onrender.com/api';
     };
 
     const API_BASE = getApiBase();
@@ -1017,6 +1024,10 @@
                   </button>
                   <div style={{ marginTop: '10px', fontSize: '0.75rem' }}>
                     Quick Demo: <a href="#" style={{ color: 'var(--primary)' }} onClick={(e) => { e.preventDefault(); handlePresetLogin('rahul@trackflow.com', 'user123'); }}>User (Rahul)</a> | <a href="#" style={{ color: 'var(--primary)' }} onClick={(e) => { e.preventDefault(); handlePresetLogin('admin@trackflow.com', 'admin123'); }}>Admin</a>
+                  </div>
+                  <div style={{ marginTop: '12px', fontSize: '0.72rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                    <span style={{ display: 'inline-block', width: '7px', height: '7px', borderRadius: '50%', background: '#10B981' }}></span>
+                    <span>Backend: <strong>https://dbms-2nd-year-project-3.onrender.com</strong></span>
                   </div>
                 </div>
               </div>
