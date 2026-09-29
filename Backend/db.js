@@ -14,11 +14,13 @@ const dbName = process.env.DB_NAME;
 const dbPort = process.env.DB_PORT || 5432;
 const databaseUrl = process.env.DATABASE_URL;
 
-// Determine environment
-const isProduction = process.env.NODE_ENV === 'production' || process.env.RENDER === 'true';
-const isPostgresConfigured = Boolean(databaseUrl || (dbHost && dbUser));
+// Determine environment & database mode
+const isRender = process.env.RENDER === 'true';
+const isProduction = process.env.NODE_ENV === 'production' || isRender;
+const preferSqlite = process.env.DB_TYPE === 'sqlite';
+const isPostgresConfigured = !preferSqlite && Boolean(databaseUrl || (dbHost && dbUser));
 
-if (isProduction || isPostgresConfigured) {
+if ((isProduction || isPostgresConfigured) && !preferSqlite) {
   dbType = 'postgres';
   
   let poolConfig;
@@ -43,17 +45,17 @@ if (isProduction || isPostgresConfigured) {
     console.log(`[DB] PostgreSQL pool configured for host: ${dbHost || 'DATABASE_URL'}`);
   } catch (err) {
     console.error('[DB Error] Failed to create PostgreSQL pool:', err.message);
-    if (isProduction) {
+    if (isRender) {
       throw new Error(`[DB Fatal] Production requires PostgreSQL: ${err.message}`);
     }
   }
 } else {
-  // Local development fallback to SQLite ONLY when not in production and no Postgres env vars
+  // Local development fallback to SQLite
   initSqliteInstance();
 }
 
 function initSqliteInstance() {
-  if (isProduction) {
+  if (isRender) {
     throw new Error('[DB Fatal] Refusing to use SQLite in production environment.');
   }
   if (!sqliteDb) {
@@ -180,9 +182,9 @@ async function execute(sql, params = []) {
   } else if (dbType === 'sqlite' && sqliteDb) {
     const stmt = sqliteDb.prepare(sql);
     const result = stmt.run(...params);
-    return { lastInsertRowid: result.lastInsertRowid };
+    return { lastInsertRowid: result.lastInsertRowid, rowCount: result.changes, changes: result.changes };
   }
-  return { lastInsertRowid: Date.now() };
+  return { lastInsertRowid: Date.now(), rowCount: 0 };
 }
 
 function runSqliteInit(schemaSql, seedSql) {
@@ -271,12 +273,14 @@ async function initDb() {
       console.log('[DB] PostgreSQL database initialization completed successfully.');
     } catch (err) {
       console.error('[DB Error] PostgreSQL initialization failed:', err.message);
-      if (isProduction) {
+      if (isRender) {
         console.error('[DB Fatal] Running in production on Render. Refusing to fall back to SQLite.');
         console.error('[DB Fatal] Please verify your Render environment variables: DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT (or DATABASE_URL).');
         throw new Error(`[DB Fatal] PostgreSQL connection failed in production: ${err.message}`);
       } else {
         console.warn('[DB Warning] PostgreSQL connection failed, falling back to SQLite for local development:', err.message);
+        try { if (pgPool) await pgPool.end(); } catch (e) {}
+        pgPool = null;
         dbType = 'sqlite';
         runSqliteInit(schemaSql, seedSql);
       }
