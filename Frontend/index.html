@@ -573,7 +573,20 @@
       RefreshCw: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
     };
 
-    const API_BASE = '/api';
+    const getApiBase = () => {
+      if (typeof window !== 'undefined' && window.__TRACKFLOW_API_URL__) {
+        const clean = window.__TRACKFLOW_API_URL.trim().replace(/\/+$/, '');
+        return clean.endsWith('/api') ? clean : `${clean}/api`;
+      }
+      if (typeof window !== 'undefined' && window.location) {
+        if (window.location.protocol === 'file:' || (window.location.port !== '3000' && window.location.port !== '5000' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'))) {
+          return 'http://localhost:5000/api';
+        }
+      }
+      return '/api';
+    };
+
+    const API_BASE = getApiBase();
 
     function App() {
       // Theme State (Persisted)
@@ -648,9 +661,20 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: loginEmail, password: loginPassword })
           });
-          const data = await res.json();
+          const data = await res.json().catch(() => null);
 
-          if (data.success && data.user) {
+          if (!res.ok) {
+            if (res.status === 401) {
+              setAuthError((data && data.message) || 'Invalid email or password.');
+            } else if (data && data.message) {
+              setAuthError(data.message);
+            } else {
+              setAuthError(`Server error (${res.status}). Please check backend status.`);
+            }
+            return;
+          }
+
+          if (data && data.success && data.user) {
             const userObj = {
               ...data.user,
               userId: data.user.user_id || data.user.userId
@@ -660,10 +684,11 @@
             setCurrentUser(userObj);
             setActiveTab('dashboard');
           } else {
-            setAuthError(data.message || 'Invalid email or password.');
+            setAuthError((data && data.message) || 'Invalid email or password.');
           }
         } catch (err) {
-          setAuthError('Invalid email or password.');
+          console.error('Login request error:', err);
+          setAuthError('Unable to connect to backend server. Render backend may be waking up, or VITE_API_URL is unreachable.');
         } finally {
           setAuthLoading(false);
         }
@@ -700,9 +725,14 @@
               password: regPassword
             })
           });
-          const data = await res.json();
+          const data = await res.json().catch(() => null);
 
-          if (data.success && data.user) {
+          if (!res.ok) {
+            setAuthError((data && data.message) || `Registration failed (${res.status}).`);
+            return;
+          }
+
+          if (data && data.success && data.user) {
             const userObj = {
               ...data.user,
               userId: data.user.user_id || data.user.userId
@@ -712,10 +742,11 @@
             setCurrentUser(userObj);
             setActiveTab('dashboard');
           } else {
-            setAuthError(data.message || 'Registration failed. Please check your inputs.');
+            setAuthError((data && data.message) || 'Registration failed. Please check your inputs.');
           }
         } catch (err) {
-          setAuthError('Registration failed. Please try again.');
+          console.error('Registration error:', err);
+          setAuthError('Unable to connect to backend server. Please verify connection.');
         } finally {
           setAuthLoading(false);
         }
@@ -803,12 +834,16 @@
         try {
           const res = await fetch(`${API_BASE}/issues/${issueId}`);
           const data = await res.json();
-          if (data.success) {
+          if (data.success && data.data) {
             setSelectedIssue(data.data);
             if (data.data.ai_solution_json) {
               try {
-                setAiSolution(JSON.parse(data.data.ai_solution_json));
+                const parsed = typeof data.data.ai_solution_json === 'string'
+                  ? JSON.parse(data.data.ai_solution_json)
+                  : data.data.ai_solution_json;
+                setAiSolution(parsed);
               } catch (e) {
+                console.error('Failed to parse ai_solution_json:', e);
                 setAiSolution(null);
               }
             } else {
@@ -835,18 +870,36 @@
               title: selectedIssue.title,
               description: selectedIssue.description,
               category: selectedIssue.category,
-              priority: selectedIssue.priority_name,
-              comments: selectedIssue.comments
+              priority: selectedIssue.priority_name || selectedIssue.priority,
+              status: selectedIssue.status_name || selectedIssue.status,
+              comments: selectedIssue.comments,
+              history: selectedIssue.history
             })
           });
           const data = await res.json();
           if (data.success && data.aiSolution) {
             setAiSolution(data.aiSolution);
-            handleOpenIssueDetail(selectedIssue.issue_id);
+            setSelectedIssue(prev => ({
+              ...prev,
+              ai_solution_json: typeof data.aiSolution === 'string' ? data.aiSolution : JSON.stringify(data.aiSolution),
+              ai_status: 'Generated',
+              ai_attempts: data.attempts || ((prev && prev.ai_attempts || 0) + 1),
+              history: [
+                ...(prev && prev.history || []),
+                {
+                  event_type: 'AI Analysis Generated',
+                  description: `AI Problem Solver generated solution attempt #${data.attempts || 1}`,
+                  created_at: new Date().toLocaleString()
+                }
+              ]
+            }));
             fetchData();
+          } else {
+            alert((data && data.message) || 'AI could not generate a solution for this issue.');
           }
         } catch (err) {
-          alert('Could not trigger AI problem solver.');
+          console.error('AI Solve Problem Error:', err);
+          alert('Could not trigger AI problem solver. Please check backend connection.');
         } finally {
           setAiLoading(false);
         }
@@ -1645,85 +1698,125 @@
                       <Icons.Bot /> AI Problem Solver Diagnostics
                     </div>
 
-                    {aiSolution.moreInfoRequired ? (
-                      <div style={{ background: 'var(--warning-bg)', border: '1px solid var(--warning)', padding: '16px', borderRadius: 'var(--radius-md)', color: 'var(--warning)' }}>
-                        <strong>More information is required to determine the exact cause.</strong>
-                        <p style={{ marginTop: '6px', fontSize: '0.9rem' }}>{aiSolution.requiredDetails || 'Please add more diagnostic details or error logs.'}</p>
+                    {/* 1. Problem Understanding */}
+                    {aiSolution.problemUnderstanding && (
+                      <div className="ai-section">
+                        <div className="ai-section-label">1. Problem Understanding & Context</div>
+                        <div className="ai-section-content">{aiSolution.problemUnderstanding}</div>
                       </div>
-                    ) : (
-                      <>
-                        <div className="ai-section">
-                          <div className="ai-section-label">Problem Understanding</div>
-                          <div className="ai-section-content">{aiSolution.problemUnderstanding}</div>
+                    )}
+
+                    {/* 2. Cause Analysis: Confirmed vs Likely vs General */}
+                    {aiSolution.confirmedCause && (
+                      <div className="ai-section" style={{ borderLeft: '3px solid var(--success)', paddingLeft: '12px' }}>
+                        <div className="ai-section-label" style={{ color: 'var(--success)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <Icons.Check /> Confirmed Root Cause
                         </div>
+                        <div className="ai-section-content" style={{ fontWeight: 500 }}>{aiSolution.confirmedCause}</div>
+                      </div>
+                    )}
 
-                        <div className="ai-section">
-                          <div className="ai-section-label">Possible Cause</div>
-                          <div className="ai-section-content">{aiSolution.possibleCause}</div>
+                    {aiSolution.likelyCause && (
+                      <div className="ai-section" style={{ borderLeft: '3px solid var(--warning)', paddingLeft: '12px' }}>
+                        <div className="ai-section-label" style={{ color: 'var(--warning)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <Icons.AlertCircle /> Likely Cause (Based on Available Information)
                         </div>
+                        <div className="ai-section-content">{aiSolution.likelyCause}</div>
+                      </div>
+                    )}
 
-                        <div className="ai-section">
-                          <div className="ai-section-label">Recommended Solution</div>
-                          <div className="ai-section-content">{aiSolution.recommendedSolution}</div>
+                    {(!aiSolution.confirmedCause && !aiSolution.likelyCause && aiSolution.possibleCause) && (
+                      <div className="ai-section">
+                        <div className="ai-section-label">Root Cause Analysis</div>
+                        <div className="ai-section-content">{aiSolution.possibleCause}</div>
+                      </div>
+                    )}
+
+                    {/* 3. Information Still Needed (if genuinely necessary to confirm root cause) */}
+                    {(aiSolution.informationStillNeeded || (aiSolution.moreInfoRequired && aiSolution.requiredDetails)) && (
+                      <div className="ai-section" style={{ background: 'var(--warning-bg)', border: '1px solid var(--warning)', padding: '12px 16px', borderRadius: 'var(--radius-md)' }}>
+                        <div className="ai-section-label" style={{ color: 'var(--warning)', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <Icons.AlertCircle /> Information Still Needed for Exact Confirmation
                         </div>
-
-                        <div className="ai-section">
-                          <div className="ai-section-label">Step-by-Step Fix</div>
-                          <div className="ai-section-content">
-                            {Array.isArray(aiSolution.stepByStepFix) ? (
-                              aiSolution.stepByStepFix.map((step, sIdx) => <div key={sIdx} style={{ marginBottom: '4px' }}>{step}</div>)
-                            ) : (
-                              <div>{aiSolution.stepByStepFix}</div>
-                            )}
-                          </div>
+                        <div className="ai-section-content" style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>
+                          {aiSolution.informationStillNeeded || aiSolution.requiredDetails}
                         </div>
+                      </div>
+                    )}
 
-                        {aiSolution.exampleCodeFix && (
-                          <div className="ai-section">
-                            <div className="ai-section-label">Example / Code Fix</div>
-                            <pre className="code-block"><code>{aiSolution.exampleCodeFix}</code></pre>
-                          </div>
-                        )}
+                    {/* 4. Recommended Solution */}
+                    {aiSolution.recommendedSolution && (
+                      <div className="ai-section">
+                        <div className="ai-section-label">2. Recommended Solution</div>
+                        <div className="ai-section-content">{aiSolution.recommendedSolution}</div>
+                      </div>
+                    )}
 
-                        <div className="ai-section">
-                          <div className="ai-section-label">Verification</div>
-                          <div className="ai-section-content">{aiSolution.verification}</div>
-                        </div>
-
-                        <div className="ai-section">
-                          <div className="ai-section-label">Prevention</div>
-                          <div className="ai-section-content">{aiSolution.prevention}</div>
-                        </div>
-
-                        {/* USER SOLUTION CONFIRMATION BAR */}
-                        <div style={{ borderTop: '1px solid var(--border)', paddingTop: '16px', marginTop: '20px' }}>
-                          <div style={{ fontSize: '0.88rem', fontWeight: 700, marginBottom: '10px' }}>Did this AI solution solve your problem?</div>
-                          <div style={{ display: 'flex', gap: '12px' }}>
-                            <button className="btn btn-success" onClick={() => handleConfirmSolution(true)}>
-                              <Icons.Check /> ✓ Problem Solved
-                            </button>
-                            <button className="btn btn-secondary" onClick={() => setShowStillNotSolvedInput(true)}>
-                              <Icons.X /> ✕ Still Not Solved
-                            </button>
-                          </div>
-
-                          {showStillNotSolvedInput && (
-                            <div style={{ marginTop: '16px', background: 'var(--bg-surface-2)', padding: '16px', borderRadius: 'var(--radius-md)' }}>
-                              <label className="form-label">Add Additional Diagnostic Information or Comment:</label>
-                              <textarea className="form-textarea" rows="3" placeholder="Describe what happened when you tried the fix or paste new log output..." value={additionalNote} onChange={(e) => setAdditionalNote(e.target.value)} />
-                              <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
-                                <button className="btn btn-primary btn-sm" onClick={() => handleConfirmSolution(false)}>
-                                  Submit Notes & Keep Open
-                                </button>
-                                <button className="btn btn-secondary btn-sm" onClick={handleAISolve} disabled={aiLoading}>
-                                  <Icons.RefreshCw /> Re-analyze with AI
-                                </button>
-                              </div>
-                            </div>
+                    {/* 5. Step-by-Step Fix */}
+                    {aiSolution.stepByStepFix && (
+                      <div className="ai-section">
+                        <div className="ai-section-label">3. Step-by-Step Fix</div>
+                        <div className="ai-section-content">
+                          {Array.isArray(aiSolution.stepByStepFix) ? (
+                            aiSolution.stepByStepFix.map((step, sIdx) => <div key={sIdx} style={{ marginBottom: '6px' }}>{step}</div>)
+                          ) : (
+                            <div>{aiSolution.stepByStepFix}</div>
                           )}
                         </div>
-                      </>
+                      </div>
                     )}
+
+                    {/* 6. Code / SQL Fix */}
+                    {aiSolution.exampleCodeFix && (
+                      <div className="ai-section">
+                        <div className="ai-section-label">4. Corrected Code / SQL Fix</div>
+                        <pre className="code-block"><code>{aiSolution.exampleCodeFix}</code></pre>
+                      </div>
+                    )}
+
+                    {/* 7. Verification */}
+                    {aiSolution.verification && (
+                      <div className="ai-section">
+                        <div className="ai-section-label">5. Verification Steps</div>
+                        <div className="ai-section-content">{aiSolution.verification}</div>
+                      </div>
+                    )}
+
+                    {/* 8. Prevention */}
+                    {aiSolution.prevention && (
+                      <div className="ai-section">
+                        <div className="ai-section-label">6. Prevention Recommendation</div>
+                        <div className="ai-section-content">{aiSolution.prevention}</div>
+                      </div>
+                    )}
+
+                    {/* USER SOLUTION CONFIRMATION BAR */}
+                    <div style={{ borderTop: '1px solid var(--border)', paddingTop: '16px', marginTop: '20px' }}>
+                      <div style={{ fontSize: '0.88rem', fontWeight: 700, marginBottom: '10px' }}>Did this AI solution solve your problem?</div>
+                      <div style={{ display: 'flex', gap: '12px' }}>
+                        <button className="btn btn-success" onClick={() => handleConfirmSolution(true)}>
+                          <Icons.Check /> ✓ Problem Solved
+                        </button>
+                        <button className="btn btn-secondary" onClick={() => setShowStillNotSolvedInput(true)}>
+                          <Icons.X /> ✕ Still Not Solved
+                        </button>
+                      </div>
+
+                      {showStillNotSolvedInput && (
+                        <div style={{ marginTop: '16px', background: 'var(--bg-surface-2)', padding: '16px', borderRadius: 'var(--radius-md)' }}>
+                          <label className="form-label">Add Additional Diagnostic Information or Comment:</label>
+                          <textarea className="form-textarea" rows="3" placeholder="Describe what happened when you tried the fix or paste new log output..." value={additionalNote} onChange={(e) => setAdditionalNote(e.target.value)} />
+                          <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
+                            <button className="btn btn-primary btn-sm" onClick={() => handleConfirmSolution(false)}>
+                              Submit Notes & Keep Open
+                            </button>
+                            <button className="btn btn-secondary btn-sm" onClick={handleAISolve} disabled={aiLoading}>
+                              <Icons.RefreshCw /> Re-analyze with AI
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
 

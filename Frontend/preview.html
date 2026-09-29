@@ -728,9 +728,9 @@
               comments: selectedIssueComments
             })
           });
-          const data = await res.json();
-          if (data.success && data.analysis) {
-            setAiAnalysisResult(data.analysis);
+          const resultObj = data.analysis || data.aiSolution;
+          if (data.success && resultObj) {
+            setAiAnalysisResult(resultObj);
           } else {
             alert(data.message || 'AI Analysis could not be completed.');
           }
@@ -1509,10 +1509,34 @@
 
                       {/* Root Cause Analysis */}
                       <div style={{ marginBottom: '16px' }}>
-                        <h4 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '4px' }}>2. Root Cause Analysis</h4>
-                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', background: 'var(--bg-surface-2)', padding: '10px 12px', borderRadius: 'var(--radius-md)' }}>
-                          {aiAnalysisResult.rootCauseAnalysis || aiAnalysisResult.possibleCause}
-                        </p>
+                        <h4 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '6px' }}>2. Cause Analysis</h4>
+                        
+                        {aiAnalysisResult.confirmedCause && (
+                          <div style={{ borderLeft: '3px solid var(--success)', padding: '10px 12px', background: 'var(--bg-surface-2)', borderRadius: 'var(--radius-md)', marginBottom: '8px' }}>
+                            <div style={{ color: 'var(--success)', fontWeight: 700, fontSize: '0.85rem', marginBottom: '4px' }}>✓ Confirmed Root Cause</div>
+                            <div style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>{aiAnalysisResult.confirmedCause}</div>
+                          </div>
+                        )}
+
+                        {aiAnalysisResult.likelyCause && (
+                          <div style={{ borderLeft: '3px solid var(--warning)', padding: '10px 12px', background: 'var(--bg-surface-2)', borderRadius: 'var(--radius-md)', marginBottom: '8px' }}>
+                            <div style={{ color: 'var(--warning)', fontWeight: 700, fontSize: '0.85rem', marginBottom: '4px' }}>⚡ Likely Cause (Based on Available Information)</div>
+                            <div style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>{aiAnalysisResult.likelyCause}</div>
+                          </div>
+                        )}
+
+                        {(!aiAnalysisResult.confirmedCause && !aiAnalysisResult.likelyCause && (aiAnalysisResult.rootCauseAnalysis || aiAnalysisResult.possibleCause)) && (
+                          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', background: 'var(--bg-surface-2)', padding: '10px 12px', borderRadius: 'var(--radius-md)' }}>
+                            {aiAnalysisResult.rootCauseAnalysis || aiAnalysisResult.possibleCause}
+                          </p>
+                        )}
+
+                        {aiAnalysisResult.informationStillNeeded && (
+                          <div style={{ background: 'var(--warning-bg)', border: '1px solid var(--warning)', padding: '10px 12px', borderRadius: 'var(--radius-md)', marginTop: '8px' }}>
+                            <div style={{ color: 'var(--warning)', fontWeight: 700, fontSize: '0.85rem', marginBottom: '4px' }}>ℹ️ Information Still Needed for Exact Confirmation</div>
+                            <div style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>{aiAnalysisResult.informationStillNeeded}</div>
+                          </div>
+                        )}
                       </div>
 
                       {/* Recommended Solution */}

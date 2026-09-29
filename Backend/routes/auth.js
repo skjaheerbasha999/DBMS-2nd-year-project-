@@ -44,7 +44,7 @@ router.post('/register', async (req, res) => {
     const cleanEmail = (email || '').toLowerCase().trim();
     const existing = await queryOne('SELECT user_id FROM "USER" WHERE email = ?', [cleanEmail]);
     if (existing) {
-      return res.status(409).json({ success: false, message: 'Invalid email or password.' });
+      return res.status(409).json({ success: false, message: 'An account with this email address already exists.' });
     }
 
     // Public registration ALWAYS defaults to USER role

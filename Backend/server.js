@@ -4,7 +4,7 @@ const path = require('path');
 const { initDb } = require('./db');
 
 const app = express();
-let PORT = process.env.PORT || 5000;
+let PORT = parseInt(process.env.PORT, 10) || 5000;
 
 // Middlewares
 app.use(cors());
